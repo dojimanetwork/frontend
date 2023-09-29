@@ -17,3 +17,4 @@ export { default as sol2uml } from './sol2uml';
 export { default as stats } from './stats';
 export { default as web3Wallet } from './web3Wallet';
 export { default as verifiedTokens } from './verifiedTokens';
+export { default as zkEvmRollup } from './zkEvmRollup';

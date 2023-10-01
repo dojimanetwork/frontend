@@ -48,6 +48,11 @@ export type Transaction = {
   l1_gas_price?: string;
   l1_gas_used?: string;
   has_error_in_internal_txs: boolean | null;
+  // zkEvm fields
+  zkevm_verify_hash?: string;
+  zkevm_batch_number?: number;
+  zkevm_status?: string;
+  zkevm_sequence_hash?: string;
 }
 
 export type TransactionsResponse = TransactionsResponseValidated | TransactionsResponsePending;

@@ -17,6 +17,8 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 import { scroller, Element } from 'react-scroll';
 
+import { route } from 'nextjs-routes';
+
 import config from 'configs/app';
 import clockIcon from 'icons/clock.svg';
 import flameIcon from 'icons/flame.svg';
@@ -35,6 +37,7 @@ import DetailsInfoItem from 'ui/shared/DetailsInfoItem';
 import DetailsSponsoredItem from 'ui/shared/DetailsSponsoredItem';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
+import BlockEntityL2 from 'ui/shared/entities/block/BlockEntityL2';
 import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 import LogDecodedInputData from 'ui/shared/logs/LogDecodedInputData';
 import RawInputData from 'ui/shared/RawInputData';
@@ -150,6 +153,15 @@ const TxDetails = () => {
             </Tag>
           ) }
         </DetailsInfoItem>
+        { data.zkevm_status && (
+          <DetailsInfoItem
+            title="ZkEVM status"
+            // hint="Current transaction state: Success, Failed (Error), or Pending (In Process)"
+            isLoading={ isPlaceholderData }
+          >
+            { data.zkevm_status }
+          </DetailsInfoItem>
+        ) }
         { data.revert_reason && (
           <DetailsInfoItem
             title="Revert reason"
@@ -180,6 +192,19 @@ const TxDetails = () => {
             </>
           ) }
         </DetailsInfoItem>
+        { data.zkevm_batch_number && (
+          <DetailsInfoItem
+            title="Tx batch"
+            // hint="Block number containing the transaction"
+            isLoading={ isPlaceholderData }
+          >
+            <BlockEntityL2
+              isLoading={ isPlaceholderData }
+              number={ data.zkevm_batch_number }
+              href={ route({ pathname: '/zkevm-l2-txn-batch/[number]', query: { number: data.zkevm_batch_number.toString() } }) }
+            />
+          </DetailsInfoItem>
+        ) }
         { data.timestamp && (
           <DetailsInfoItem
             title="Timestamp"
@@ -268,6 +293,27 @@ const TxDetails = () => {
         { data.token_transfers && <TxDetailsTokenTransfers data={ data.token_transfers } txHash={ data.hash }/> }
 
         { divider }
+
+        { data.zkevm_batch_number && (
+          <DetailsInfoItem
+            title="Sequence tx hash"
+            // hint="Value sent in the native token (and USD) if applicable"
+            isLoading={ isPlaceholderData }
+          >
+            { data.zkevm_sequence_hash }
+          </DetailsInfoItem>
+        ) }
+        { data.zkevm_verify_hash && (
+          <DetailsInfoItem
+            title="Verify tx hash"
+            // hint="Value sent in the native token (and USD) if applicable"
+            isLoading={ isPlaceholderData }
+          >
+            { data.zkevm_verify_hash }
+          </DetailsInfoItem>
+        ) }
+
+        { (data.zkevm_batch_number || data.zkevm_verify_hash) && divider }
 
         <DetailsInfoItem
           title="Value"

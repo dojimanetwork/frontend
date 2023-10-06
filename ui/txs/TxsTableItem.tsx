@@ -22,7 +22,7 @@ import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import InOutTag from 'ui/shared/InOutTag';
-import TxStatus from 'ui/shared/TxStatus';
+import TxStatus from 'ui/shared/statusTag/TxStatus';
 import TxAdditionalInfo from 'ui/txs/TxAdditionalInfo';
 
 import TxType from './TxType';

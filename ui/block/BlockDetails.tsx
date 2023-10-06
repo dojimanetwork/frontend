@@ -128,6 +128,14 @@ const BlockDetails = ({ query }: Props) => {
     );
   })();
 
+  const verificationTitle = (() => {
+    if (config.features.zkEvmRollup.isEnabled) {
+      return 'Sequenced by';
+    }
+
+    return config.chain.verificationType === 'validation' ? 'Validated by' : 'Mined by';
+  })();
+
   return (
     <Grid
       columnGap={ 8 }
@@ -201,7 +209,7 @@ const BlockDetails = ({ query }: Props) => {
         </DetailsInfoItem>
       ) }
       <DetailsInfoItem
-        title={ config.chain.verificationType === 'validation' ? 'Validated by' : 'Mined by' }
+        title={ verificationTitle }
         hint="A block producer who successfully included the block onto the blockchain"
         columnGap={ 1 }
         isLoading={ isPlaceholderData }
@@ -213,7 +221,8 @@ const BlockDetails = ({ query }: Props) => {
         { /* api doesn't return the block processing time yet */ }
         { /* <Text>{ dayjs.duration(block.minedIn, 'second').humanize(true) }</Text> */ }
       </DetailsInfoItem>
-      { !config.features.rollup.isEnabled && !totalReward.isEqualTo(ZERO) && !config.UI.views.block.hiddenFields?.total_reward && (
+      { !config.features.rollup.isEnabled && !config.features.zkEvmRollup.isEnabled &&
+        !totalReward.isEqualTo(ZERO) && !config.UI.views.block.hiddenFields?.total_reward && (
         <DetailsInfoItem
           title="Block reward"
           hint={

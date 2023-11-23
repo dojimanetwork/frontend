@@ -6,24 +6,26 @@ import type { NetworkExplorer as TNetworkExplorer } from 'types/networks';
 import config from 'configs/app';
 import arrowIcon from 'icons/arrows/east-mini.svg';
 import explorerIcon from 'icons/explorer.svg';
+import stripTrailingSlash from 'lib/stripTrailingSlash';
 import LinkExternal from 'ui/shared/LinkExternal';
 
 interface Props {
   className?: string;
   type: keyof TNetworkExplorer['paths'];
   pathParam: string;
-  hideText?: boolean;
 }
 
-const NetworkExplorers = ({ className, type, pathParam, hideText }: Props) => {
+const NetworkExplorers = ({ className, type, pathParam }: Props) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
 
-  const explorersLinks = config.UI.explorers.items
-    .filter((explorer) => explorer.paths[type])
-    .map((explorer) => {
-      const url = new URL(explorer.paths[type] + '/' + pathParam, explorer.baseUrl);
-      return <LinkExternal key={ explorer.baseUrl } href={ url.toString() }>{ explorer.title }</LinkExternal>;
-    });
+  const explorersLinks = React.useMemo(() => {
+    return config.UI.explorers.items
+      .filter((explorer) => typeof explorer.paths[type] === 'string')
+      .map((explorer) => {
+        const url = new URL(stripTrailingSlash(explorer.paths[type] || '') + '/' + pathParam, explorer.baseUrl);
+        return <LinkExternal key={ explorer.baseUrl } href={ url.toString() }>{ explorer.title }</LinkExternal>;
+      });
+  }, [ pathParam, type ]);
 
   if (explorersLinks.length === 0) {
     return null;
@@ -41,11 +43,11 @@ const NetworkExplorers = ({ className, type, pathParam, hideText }: Props) => {
           aria-label="Verify in other explorers"
           fontWeight={ 500 }
           px={ 2 }
-          h="30px"
+          h="32px"
+          flexShrink={ 0 }
         >
-          <Icon as={ explorerIcon } boxSize={ 5 } mr={ hideText ? 0 : 1 }/>
-          { !hideText && <span>Explorers</span> }
-          <Icon as={ arrowIcon } transform={ isOpen ? 'rotate(90deg)' : 'rotate(-90deg)' } transitionDuration="faster" boxSize={ 5 } ml={ 1 }/>
+          <Icon as={ explorerIcon } boxSize={ 5 }/>
+          <Icon as={ arrowIcon } transform={ isOpen ? 'rotate(90deg)' : 'rotate(-90deg)' } transitionDuration="faster" boxSize={ 5 }/>
         </Button>
       </PopoverTrigger>
       <PopoverContent w="240px">

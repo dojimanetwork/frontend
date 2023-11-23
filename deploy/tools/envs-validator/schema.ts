@@ -12,15 +12,21 @@ import type { AdButlerConfig } from '../../../types/client/adButlerConfig';
 import { SUPPORTED_AD_TEXT_PROVIDERS, SUPPORTED_AD_BANNER_PROVIDERS } from '../../../types/client/adProviders';
 import type { AdTextProviders, AdBannerProviders } from '../../../types/client/adProviders';
 import type { MarketplaceAppOverview } from '../../../types/client/marketplace';
-import type { NavItemExternal } from '../../../types/client/navigation-items';
+import { NAVIGATION_LINK_IDS } from '../../../types/client/navigation-items';
+import type { NavItemExternal, NavigationLinkId } from '../../../types/client/navigation-items';
+import type { BridgedTokenChain, TokenBridge } from '../../../types/client/token';
 import type { WalletType } from '../../../types/client/wallets';
 import { SUPPORTED_WALLETS } from '../../../types/client/wallets';
 import type { CustomLink, CustomLinksGroup } from '../../../types/footerLinks';
 import type { ChainIndicatorId } from '../../../types/homepage';
 import { type NetworkVerificationType, type NetworkExplorer, type FeaturedNetwork, NETWORK_GROUPS } from '../../../types/networks';
-import { IDENTICON_TYPES } from '../../../types/views/address';
+import type { AddressViewId } from '../../../types/views/address';
+import { ADDRESS_VIEWS_IDS, IDENTICON_TYPES } from '../../../types/views/address';
 import { BLOCK_FIELDS_IDS } from '../../../types/views/block';
 import type { BlockFieldId } from '../../../types/views/block';
+import type { NftMarketplaceItem } from '../../../types/views/nft';
+import type { TxAdditionalFieldsId, TxFieldsId } from '../../../types/views/tx';
+import { TX_ADDITIONAL_FIELDS_IDS, TX_FIELDS_IDS } from '../../../types/views/tx';
 
 import { replaceQuotes } from '../../../configs/app/utils';
 import * as regexp from '../../../lib/regexp';
@@ -100,20 +106,23 @@ const beaconChainSchema = yup
 const rollupSchema = yup
   .object()
   .shape({
-    NEXT_PUBLIC_IS_L2_NETWORK: yup.boolean(),
-    NEXT_PUBLIC_L1_BASE_URL: yup
+    NEXT_PUBLIC_IS_OPTIMISTIC_L2_NETWORK: yup.boolean(),
+    NEXT_PUBLIC_OPTIMISTIC_L2_WITHDRAWAL_URL: yup
       .string()
-      .when('NEXT_PUBLIC_IS_L2_NETWORK', {
-        is: (value: boolean) => value,
-        then: (schema) => schema.test(urlTest).required(),
-        otherwise: (schema) => schema.max(-1, 'NEXT_PUBLIC_L1_BASE_URL cannot not be used if NEXT_PUBLIC_IS_L2_NETWORK is not set to "true"'),
-      }),
-    NEXT_PUBLIC_L2_WITHDRAWAL_URL: yup
-      .string()
-      .when('NEXT_PUBLIC_IS_L2_NETWORK', {
+      .when('NEXT_PUBLIC_IS_OPTIMISTIC_L2_NETWORK', {
         is: (value: string) => value,
         then: (schema) => schema.test(urlTest).required(),
-        otherwise: (schema) => schema.max(-1, 'NEXT_PUBLIC_L2_WITHDRAWAL_URL cannot not be used if NEXT_PUBLIC_IS_L2_NETWORK is not set to "true"'),
+        // eslint-disable-next-line max-len
+        otherwise: (schema) => schema.max(-1, 'NEXT_PUBLIC_OPTIMISTIC_L2_WITHDRAWAL_URL cannot not be used if NEXT_PUBLIC_IS_OPTIMISTIC_L2_NETWORK is not set to "true"'),
+      }),
+    NEXT_PUBLIC_IS_ZKEVM_L2_NETWORK: yup.boolean(),
+    NEXT_PUBLIC_L1_BASE_URL: yup
+      .string()
+      .when([ 'NEXT_PUBLIC_IS_OPTIMISTIC_L2_NETWORK', 'NEXT_PUBLIC_IS_ZKEVM_L2_NETWORK' ], {
+        is: (isOptimistic?: boolean, isZk?: boolean) => isOptimistic || isZk,
+        then: (schema) => schema.test(urlTest).required(),
+        // eslint-disable-next-line max-len
+        otherwise: (schema) => schema.max(-1, 'NEXT_PUBLIC_L1_BASE_URL cannot not be used if NEXT_PUBLIC_IS_OPTIMISTIC_L2_NETWORK or NEXT_PUBLIC_IS_ZKEVM_L2_NETWORK is not set to "true"'),
       }),
   });
 
@@ -150,6 +159,12 @@ const sentrySchema = yup
         is: (value: string) => Boolean(value),
         then: (schema) => schema.test(urlTest),
         otherwise: (schema) => schema.max(-1, 'SENTRY_CSP_REPORT_URI cannot not be used without NEXT_PUBLIC_SENTRY_DSN'),
+      }),
+    NEXT_PUBLIC_SENTRY_ENABLE_TRACING: yup
+      .boolean()
+      .when('NEXT_PUBLIC_SENTRY_DSN', {
+        is: (value: string) => Boolean(value),
+        then: (schema) => schema,
       }),
     NEXT_PUBLIC_APP_INSTANCE: yup
       .string()
@@ -247,6 +262,49 @@ const networkExplorerSchema: yup.ObjectSchema<NetworkExplorer> = yup
       }),
   });
 
+const nftMarketplaceSchema: yup.ObjectSchema<NftMarketplaceItem> = yup
+  .object({
+    name: yup.string().required(),
+    collection_url: yup.string().test(urlTest).required(),
+    instance_url: yup.string().test(urlTest).required(),
+    logo_url: yup.string().test(urlTest).required(),
+  });
+
+const bridgedTokenChainSchema: yup.ObjectSchema<BridgedTokenChain> = yup
+  .object({
+    id: yup.string().required(),
+    title: yup.string().required(),
+    short_title: yup.string().required(),
+    base_url: yup.string().test(urlTest).required(),
+  });
+
+const tokenBridgeSchema: yup.ObjectSchema<TokenBridge> = yup
+  .object({
+    type: yup.string().required(),
+    title: yup.string().required(),
+    short_title: yup.string().required(),
+  });
+
+const bridgedTokensSchema = yup
+  .object()
+  .shape({
+    NEXT_PUBLIC_BRIDGED_TOKENS_CHAINS: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(bridgedTokenChainSchema),
+    NEXT_PUBLIC_BRIDGED_TOKENS_BRIDGES: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(tokenBridgeSchema)
+      .when('NEXT_PUBLIC_BRIDGED_TOKENS_CHAINS', {
+        is: (value: Array<unknown>) => value && value.length > 0,
+        then: (schema) => schema.required(),
+        otherwise: (schema) => schema.max(-1, 'NEXT_PUBLIC_BRIDGED_TOKENS_BRIDGES cannot not be used without NEXT_PUBLIC_BRIDGED_TOKENS_CHAINS'),
+      }),
+  });
+
 const schema = yup
   .object()
   .noUnknown(true, (params) => {
@@ -290,7 +348,7 @@ const schema = yup
       .array()
       .transform(replaceQuotes)
       .json()
-      .of(yup.string<ChainIndicatorId>().oneOf([ 'daily_txs', 'coin_price', 'market_cap' ])),
+      .of(yup.string<ChainIndicatorId>().oneOf([ 'daily_txs', 'coin_price', 'market_cap', 'tvl' ])),
     NEXT_PUBLIC_HOMEPAGE_PLATE_TEXT_COLOR: yup.string(),
     NEXT_PUBLIC_HOMEPAGE_PLATE_BACKGROUND: yup.string(),
     NEXT_PUBLIC_HOMEPAGE_SHOW_GAS_TRACKER: yup.boolean(),
@@ -306,6 +364,11 @@ const schema = yup
       .transform(replaceQuotes)
       .json()
       .of(navItemExternalSchema),
+    NEXT_PUBLIC_NAVIGATION_HIDDEN_LINKS: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(yup.string<NavigationLinkId>().oneOf(NAVIGATION_LINK_IDS)),
     NEXT_PUBLIC_NETWORK_LOGO: yup.string().test(urlTest),
     NEXT_PUBLIC_NETWORK_LOGO_DARK: yup.string().test(urlTest),
     NEXT_PUBLIC_NETWORK_ICON: yup.string().test(urlTest),
@@ -324,6 +387,26 @@ const schema = yup
       .json()
       .of(yup.string<BlockFieldId>().oneOf(BLOCK_FIELDS_IDS)),
     NEXT_PUBLIC_VIEWS_ADDRESS_IDENTICON_TYPE: yup.string().oneOf(IDENTICON_TYPES),
+    NEXT_PUBLIC_VIEWS_ADDRESS_HIDDEN_VIEWS: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(yup.string<AddressViewId>().oneOf(ADDRESS_VIEWS_IDS)),
+    NEXT_PUBLIC_VIEWS_TX_HIDDEN_FIELDS: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(yup.string<TxFieldsId>().oneOf(TX_FIELDS_IDS)),
+    NEXT_PUBLIC_VIEWS_TX_ADDITIONAL_FIELDS: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(yup.string<TxAdditionalFieldsId>().oneOf(TX_ADDITIONAL_FIELDS_IDS)),
+    NEXT_PUBLIC_VIEWS_NFT_MARKETPLACES: yup
+      .array()
+      .transform(replaceQuotes)
+      .json()
+      .of(nftMarketplaceSchema),
 
     //     e. misc
     NEXT_PUBLIC_NETWORK_EXPLORERS: yup
@@ -331,7 +414,8 @@ const schema = yup
       .transform(replaceQuotes)
       .json()
       .of(networkExplorerSchema),
-    NEXT_PUBLIC_HIDE_INDEXING_ALERT: yup.boolean(),
+    NEXT_PUBLIC_HIDE_INDEXING_ALERT_BLOCKS: yup.boolean(),
+    NEXT_PUBLIC_HIDE_INDEXING_ALERT_INT_TXS: yup.boolean(),
     NEXT_PUBLIC_MAINTENANCE_ALERT_MESSAGE: yup.string(),
 
     // 5. Features configuration
@@ -357,13 +441,13 @@ const schema = yup
     NEXT_PUBLIC_PROMOTE_BLOCKSCOUT_IN_TITLE: yup.boolean(),
     NEXT_PUBLIC_OG_DESCRIPTION: yup.string(),
     NEXT_PUBLIC_OG_IMAGE_URL: yup.string().test(urlTest),
+    NEXT_PUBLIC_IS_SUAVE_CHAIN: yup.boolean(),
 
     // 6. External services envs
     NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: yup.string(),
     NEXT_PUBLIC_RE_CAPTCHA_APP_SITE_KEY: yup.string(),
     NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID: yup.string(),
     NEXT_PUBLIC_MIXPANEL_PROJECT_TOKEN: yup.string(),
-    NEXT_PUBLIC_FAVICON_GENERATOR_API_KEY: yup.string(),
 
     // Misc
     NEXT_PUBLIC_USE_NEXT_JS_PROXY: yup.boolean(),
@@ -373,6 +457,7 @@ const schema = yup
   .concat(marketplaceSchema)
   .concat(rollupSchema)
   .concat(beaconChainSchema)
+  .concat(bridgedTokensSchema)
   .concat(sentrySchema);
 
 export default schema;

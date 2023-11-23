@@ -13,6 +13,7 @@ import React from 'react';
 
 import type { Transaction } from 'types/api/transaction';
 
+import config from 'configs/app';
 import rightArrowIcon from 'icons/arrows/east.svg';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
 import Icon from 'ui/shared/chakra/Icon';
@@ -22,7 +23,9 @@ import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import InOutTag from 'ui/shared/InOutTag';
-import TxStatus from 'ui/shared/TxStatus';
+import TxStatus from 'ui/shared/statusTag/TxStatus';
+import TxFeeStability from 'ui/shared/tx/TxFeeStability';
+import TxWatchListTags from 'ui/shared/tx/TxWatchListTags';
 import TxAdditionalInfo from 'ui/txs/TxAdditionalInfo';
 
 import TxType from './TxType';
@@ -94,6 +97,7 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
         <VStack alignItems="start">
           <TxType types={ tx.tx_types } isLoading={ isLoading }/>
           <TxStatus status={ tx.status } errorText={ tx.status === 'error' ? tx.result : undefined } isLoading={ isLoading }/>
+          <TxWatchListTags tx={ tx } isLoading={ isLoading }/>
         </VStack>
       </Td>
       <Td whiteSpace="nowrap">
@@ -153,12 +157,20 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
           </Flex>
         </Td>
       </Hide>
-      <Td isNumeric>
-        <CurrencyValue value={ tx.value } accuracy={ 8 } isLoading={ isLoading }/>
-      </Td>
-      <Td isNumeric>
-        <CurrencyValue value={ tx.fee.value } accuracy={ 8 } isLoading={ isLoading }/>
-      </Td>
+      { !config.UI.views.tx.hiddenFields?.value && (
+        <Td isNumeric>
+          <CurrencyValue value={ tx.value } accuracy={ 8 } isLoading={ isLoading }/>
+        </Td>
+      ) }
+      { !config.UI.views.tx.hiddenFields?.tx_fee && (
+        <Td isNumeric>
+          { tx.stability_fee ? (
+            <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } accuracy={ 8 } justifyContent="end" hideUsd/>
+          ) : (
+            <CurrencyValue value={ tx.fee.value } accuracy={ 8 } isLoading={ isLoading }/>
+          ) }
+        </Td>
+      ) }
     </Tr>
   );
 };

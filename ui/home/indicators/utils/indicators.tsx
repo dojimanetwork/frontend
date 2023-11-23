@@ -5,6 +5,7 @@ import type { TChainIndicator } from '../types';
 
 import config from 'configs/app';
 import globeIcon from 'icons/globe.svg';
+import lockIcon from 'icons/lock.svg';
 import txIcon from 'icons/transactions.svg';
 import { sortByDateDesc } from 'ui/shared/chart/utils/sorts';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
@@ -14,7 +15,7 @@ const dailyTxsIndicator: TChainIndicator<'homepage_chart_txs'> = {
   title: 'Daily transactions',
   value: (stats) => Number(stats.transactions_today).toLocaleString(undefined, { maximumFractionDigits: 2, notation: 'compact' }),
   icon: <Icon as={ txIcon } boxSize={ 6 } bgColor="#56ACD1" borderRadius="base" color="white"/>,
-  hint: `The total daily number of transactions on the blockchain for the last month.`,
+  hint: `Number of transactions yesterday (0:00 - 23:59 UTC). The chart displays daily transactions for the past 30 days.`,
   api: {
     resourceName: 'homepage_chart_txs',
     dataFn: (response) => ([ {
@@ -76,10 +77,34 @@ const marketPriceIndicator: TChainIndicator<'homepage_chart_market'> = {
   },
 };
 
+const tvlIndicator: TChainIndicator<'homepage_chart_market'> = {
+  id: 'tvl',
+  title: 'Total value locked',
+  value: (stats) => '$' + Number(stats.tvl).toLocaleString(undefined, { maximumFractionDigits: 2, notation: 'compact' }),
+  icon: <Icon as={ lockIcon } boxSize={ 6 } bgColor="#517FDB" borderRadius="base" color="white"/>,
+  // eslint-disable-next-line max-len
+  hint: 'Total value of digital assets locked or staked in a chain',
+  api: {
+    resourceName: 'homepage_chart_market',
+    dataFn: (response) => ([ {
+      items: response.chart_data
+        .map((item) => (
+          {
+            date: new Date(item.date),
+            value: item.tvl ? Number(item.tvl) : 0,
+          }))
+        .sort(sortByDateDesc),
+      name: 'TVL',
+      valueFormatter: (x: number) => '$' + x.toLocaleString(undefined, { maximumFractionDigits: 2, notation: 'compact' }),
+    } ]),
+  },
+};
+
 const INDICATORS = [
   dailyTxsIndicator,
   coinPriceIndicator,
   marketPriceIndicator,
+  tvlIndicator,
 ];
 
 export default INDICATORS;

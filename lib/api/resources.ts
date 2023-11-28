@@ -31,8 +31,8 @@ import type { AddressesResponse } from 'types/api/addresses';
 import type { BlocksResponse, BlockTransactionsResponse, Block, BlockFilters, BlockWithdrawalsResponse } from 'types/api/block';
 import type { ChartMarketResponse, ChartTransactionResponse } from 'types/api/charts';
 import type { BackendVersionConfig } from 'types/api/configs';
-import type { SmartContract, SmartContractReadMethod, SmartContractWriteMethod, SmartContractVerificationConfig } from 'types/api/contract';
-import type { VerifiedContractsResponse, VerifiedContractsFilters, VerifiedContractsCounters } from 'types/api/contracts';
+// import type { SmartContract, SmartContractReadMethod, SmartContractWriteMethod, SmartContractVerificationConfig } from 'types/api/contract';
+import type { VerifiedContractsFilters } from 'types/api/contracts';
 import type { IndexingStatus } from 'types/api/indexingStatus';
 import type { InternalTransactionsResponse } from 'types/api/internalTransaction';
 import type { L2DepositsResponse, L2DepositsItem } from 'types/api/l2Deposits';
@@ -57,7 +57,7 @@ import type { TokenTransferResponse, TokenTransferFilters } from 'types/api/toke
 import type { TransactionsResponseValidated, TransactionsResponsePending, Transaction, TransactionsResponseWatchlist } from 'types/api/transaction';
 import type { TTxsFilters } from 'types/api/txsFilters';
 import type { TxStateChanges } from 'types/api/txStateChanges';
-import type { VisualizedContract } from 'types/api/visualization';
+// import type { VisualizedContract } from 'types/api/visualization';
 import type { WithdrawalsResponse, WithdrawalsCounters } from 'types/api/withdrawals';
 import type { ZkEvmL2TxnBatch, ZkEvmL2TxnBatchesItem, ZkEvmL2TxnBatchesResponse, ZkEvmL2TxnBatchTxs } from 'types/api/zkEvmL2TxnBatches';
 import type { ArrayElement } from 'types/utils';
@@ -312,45 +312,45 @@ export const RESOURCES = {
   },
 
   // CONTRACT
-  contract: {
-    path: '/api/v2/smart-contracts/:hash',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_methods_read: {
-    path: '/api/v2/smart-contracts/:hash/methods-read',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_methods_read_proxy: {
-    path: '/api/v2/smart-contracts/:hash/methods-read-proxy',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_method_query: {
-    path: '/api/v2/smart-contracts/:hash/query-read-method',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_methods_write: {
-    path: '/api/v2/smart-contracts/:hash/methods-write',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_methods_write_proxy: {
-    path: '/api/v2/smart-contracts/:hash/methods-write-proxy',
-    pathParams: [ 'hash' as const ],
-  },
-  contract_verification_config: {
-    path: '/api/v2/smart-contracts/verification/config',
-  },
-  contract_verification_via: {
-    path: '/api/v2/smart-contracts/:hash/verification/via/:method',
-    pathParams: [ 'hash' as const, 'method' as const ],
-  },
+  // contract: {
+  //   path: '/api/v2/smart-contracts/:hash',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_methods_read: {
+  //   path: '/api/v2/smart-contracts/:hash/methods-read',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_methods_read_proxy: {
+  //   path: '/api/v2/smart-contracts/:hash/methods-read-proxy',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_method_query: {
+  //   path: '/api/v2/smart-contracts/:hash/query-read-method',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_methods_write: {
+  //   path: '/api/v2/smart-contracts/:hash/methods-write',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_methods_write_proxy: {
+  //   path: '/api/v2/smart-contracts/:hash/methods-write-proxy',
+  //   pathParams: [ 'hash' as const ],
+  // },
+  // contract_verification_config: {
+  //   path: '/api/v2/smart-contracts/verification/config',
+  // },
+  // contract_verification_via: {
+  //   path: '/api/v2/smart-contracts/:hash/verification/via/:method',
+  //   pathParams: [ 'hash' as const, 'method' as const ],
+  // },
 
-  verified_contracts: {
-    path: '/api/v2/smart-contracts',
-    filterFields: [ 'q' as const, 'filter' as const ],
-  },
-  verified_contracts_counters: {
-    path: '/api/v2/smart-contracts/counters',
-  },
+  // verified_contracts: {
+  //   path: '/api/v2/smart-contracts',
+  //   filterFields: [ 'q' as const, 'filter' as const ],
+  // },
+  // verified_contracts_counters: {
+  //   path: '/api/v2/smart-contracts/counters',
+  // },
 
   // TOKEN
   token: {
@@ -579,7 +579,6 @@ export type PaginatedResources = 'blocks' | 'block_txs' |
 'address_logs' | 'address_tokens' |
 'token_transfers' | 'token_holders' | 'token_inventory' | 'tokens' | 'tokens_bridged' |
 'token_instance_transfers' | 'token_instance_holders' |
-'verified_contracts' |
 'l2_output_roots' | 'l2_withdrawals' | 'l2_txn_batches' | 'l2_deposits' |
 'zkevm_l2_txn_batches' | 'zkevm_l2_txn_batch_txs' |
 'withdrawals' | 'address_withdrawals' | 'block_withdrawals' |
@@ -654,15 +653,15 @@ Q extends 'tokens_bridged' ? TokensResponse :
 Q extends 'quick_search' ? Array<SearchResultItem> :
 Q extends 'search' ? SearchResult :
 Q extends 'search_check_redirect' ? SearchRedirectResult :
-Q extends 'contract' ? SmartContract :
-Q extends 'contract_methods_read' ? Array<SmartContractReadMethod> :
-Q extends 'contract_methods_read_proxy' ? Array<SmartContractReadMethod> :
-Q extends 'contract_methods_write' ? Array<SmartContractWriteMethod> :
-Q extends 'contract_methods_write_proxy' ? Array<SmartContractWriteMethod> :
-Q extends 'verified_contracts' ? VerifiedContractsResponse :
-Q extends 'verified_contracts_counters' ? VerifiedContractsCounters :
-Q extends 'visualize_sol2uml' ? VisualizedContract :
-Q extends 'contract_verification_config' ? SmartContractVerificationConfig :
+// Q extends 'contract' ? SmartContract :
+// Q extends 'contract_methods_read' ? Array<SmartContractReadMethod> :
+// Q extends 'contract_methods_read_proxy' ? Array<SmartContractReadMethod> :
+// Q extends 'contract_methods_write' ? Array<SmartContractWriteMethod> :
+// Q extends 'contract_methods_write_proxy' ? Array<SmartContractWriteMethod> :
+// Q extends 'verified_contracts' ? VerifiedContractsResponse :
+// Q extends 'verified_contracts_counters' ? VerifiedContractsCounters :
+// Q extends 'visualize_sol2uml' ? VisualizedContract :
+// Q extends 'contract_verification_config' ? SmartContractVerificationConfig :
 Q extends 'withdrawals' ? WithdrawalsResponse :
 Q extends 'withdrawals_counters' ? WithdrawalsCounters :
 Q extends 'l2_output_roots' ? L2OutputRootsResponse :

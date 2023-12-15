@@ -19,63 +19,73 @@ type Props = {
 }
 
 const ChartsWidgetsList = ({ filterQuery, isError, isPlaceholderData, charts, interval }: Props) => {
-  const [ isSomeChartLoadingError, setIsSomeChartLoadingError ] = useState(false);
+  const [isSomeChartLoadingError, setIsSomeChartLoadingError] = useState(false);
   const isAnyChartDisplayed = charts?.some((section) => section.charts.length > 0);
   const isEmptyChartList = Boolean(filterQuery) && !isAnyChartDisplayed;
 
   const handleChartLoadingError = useCallback(
     () => setIsSomeChartLoadingError(true),
-    [ setIsSomeChartLoadingError ]);
+    [setIsSomeChartLoadingError]);
 
   if (isError) {
-    return <ChartsLoadingErrorAlert/>;
+    return <ChartsLoadingErrorAlert />;
   }
 
   if (isEmptyChartList) {
-    return <EmptySearchResult text={ `Couldn${ apos }t find a chart that matches your filter query.` }/>;
+    return <EmptySearchResult text={`Couldn${apos}t find a chart that matches your filter query.`} />;
   }
-
+  
   return (
     <Box>
-      { isSomeChartLoadingError && (
-        <ChartsLoadingErrorAlert/>
-      ) }
+      {isSomeChartLoadingError && (
+        <ChartsLoadingErrorAlert />
+      )}
 
       <List>
         {
-          charts?.map((section) => (
-            <ListItem
-              key={ section.id }
-              mb={ 8 }
-              _last={{
-                marginBottom: 0,
-              }}
-            >
-              <Skeleton isLoaded={ !isPlaceholderData } mb={ 4 } display="inline-block">
-                <Heading size="md" >
-                  { section.title }
-                </Heading>
-              </Skeleton>
 
-              <Grid
-                templateColumns={{ lg: 'repeat(2, minmax(0, 1fr))' }}
-                gap={ 4 }
+          charts?.map((section) => {
+            
+            if (section.id === "contracts") {
+             
+              return null
+            } else {
+    
+              return (<ListItem
+                key={section.id}
+                mb={8}
+                _last={{
+                  marginBottom: 0,
+                }}
               >
-                { section.charts.map((chart) => (
-                  <ChartWidgetContainer
-                    key={ chart.id }
-                    id={ chart.id }
-                    title={ chart.title }
-                    description={ chart.description }
-                    interval={ interval }
-                    units={ chart.units || undefined }
-                    isPlaceholderData={ isPlaceholderData }
-                    onLoadingError={ handleChartLoadingError }
-                  />
-                )) }
-              </Grid>
-            </ListItem>
-          ))
+                <Skeleton isLoaded={!isPlaceholderData} mb={4} display="inline-block">
+                  <Heading size="md" >
+                    {section.title} hello
+                  </Heading>
+                </Skeleton>
+
+                <Grid
+                  templateColumns={{ lg: 'repeat(2, minmax(0, 1fr))' }}
+                  gap={4}
+                >
+                  {section.charts.map((chart) => (
+                    <ChartWidgetContainer
+                      key={chart.id}
+                      id={chart.id}
+                      title={chart.title}
+                      description={chart.description}
+                      interval={interval}
+                      units={chart.units || undefined}
+                      isPlaceholderData={isPlaceholderData}
+                      onLoadingError={handleChartLoadingError}
+                    />
+                  ))}
+                </Grid>
+              </ListItem>)
+            }
+          }
+
+          )
         }
       </List>
     </Box>

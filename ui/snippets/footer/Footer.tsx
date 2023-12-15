@@ -98,7 +98,7 @@ const Footer = () => {
           <NetworkAddToWallet/>
         </Flex>
         <Box mt={{ base: 5, lg: '44px' }}>
-          <Link fontSize="xs" href="https://www.blockscout.com">https://www.dojima.network/</Link>
+          <Link fontSize="xs" target="_blank" href="https://www.dojima.network/">https://www.dojima.network/</Link>
         </Box>
         <Text mt={ 3 } maxW={{ base: 'unset', lg: '470px' }} fontSize="xs">Dojima chain block explorer is a tool for viewing real time data of dojima blockchain.
         </Text>

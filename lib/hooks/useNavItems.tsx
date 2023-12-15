@@ -67,9 +67,9 @@ export default function useNavItems(): ReturnType {
       icon: transactionsIcon,
       isActive: pathname === '/txs' || pathname === '/tx/[hash]',
     };
-    const verifiedContracts =
-    // eslint-disable-next-line max-len
-     { text: 'Verified contracts', nextRoute: { pathname: '/verified-contracts' as const }, icon: verifiedIcon, isActive: pathname === '/verified-contracts' };
+    // const verifiedContracts =
+    // // eslint-disable-next-line max-len
+    //  { text: 'Verified contracts', nextRoute: { pathname: '/verified-contracts' as const }, icon: verifiedIcon, isActive: pathname === '/verified-contracts' };
 
     if (config.features.zkEvmRollup.isEnabled) {
       blockchainNavItems = [
@@ -81,7 +81,6 @@ export default function useNavItems(): ReturnType {
         ],
         [
           topAccounts,
-          verifiedContracts,
         ].filter(Boolean),
       ];
     } else if (config.features.optimisticRollup.isEnabled) {
@@ -102,7 +101,6 @@ export default function useNavItems(): ReturnType {
         ],
         [
           topAccounts,
-          verifiedContracts,
         ].filter(Boolean),
       ];
     } else {
@@ -110,7 +108,6 @@ export default function useNavItems(): ReturnType {
         txs,
         blocks,
         topAccounts,
-        verifiedContracts,
         config.features.beaconChain.isEnabled && {
           text: 'Withdrawals',
           nextRoute: { pathname: '/withdrawals' as const },

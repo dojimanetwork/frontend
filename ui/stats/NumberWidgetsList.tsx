@@ -26,16 +26,20 @@ const NumberWidgetsList = () => {
       {
 
         data?.counters?.map(({ id, title, value, units, description }, index) => {
-          if (id === "numberOfDeployedContractsToday" || "totalContracts") null
-          return (
-            <NumberWidget
-              key={id + (isPlaceholderData ? index : '')}
-              label={title}
-              value={`${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3, notation: 'compact' })} ${units ? units : ''}`}
-              isLoading={isPlaceholderData}
-              description={description}
-            />
-          );
+          if (id === "numberOfDeployedContractsToday" || "totalContracts") {
+            return null
+          }else{
+            return (
+              <NumberWidget
+                key={id + (isPlaceholderData ? index : '')}
+                label={title}
+                value={`${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3, notation: 'compact' })} ${units ? units : ''}`}
+                isLoading={isPlaceholderData}
+                description={description}
+              />
+            );
+          }
+        
         })
       }
     </Grid>

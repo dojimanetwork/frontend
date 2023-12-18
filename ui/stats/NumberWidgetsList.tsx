@@ -28,7 +28,7 @@ const NumberWidgetsList = () => {
         data?.counters?.map(({ id, title, value, units, description }, index) => {
           if (id === "numberOfDeployedContractsToday" || "totalContracts") {
             return null
-          }else{
+          }
             return (
               <NumberWidget
                 key={id + (isPlaceholderData ? index : '')}
@@ -38,7 +38,7 @@ const NumberWidgetsList = () => {
                 description={description}
               />
             );
-          }
+        
         
         })
       }

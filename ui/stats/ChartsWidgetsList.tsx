@@ -60,7 +60,7 @@ const ChartsWidgetsList = ({ filterQuery, isError, isPlaceholderData, charts, in
               >
                 <Skeleton isLoaded={!isPlaceholderData} mb={4} display="inline-block">
                   <Heading size="md" >
-                    {section.title} hello
+                    {section.title}
                   </Heading>
                 </Skeleton>
 

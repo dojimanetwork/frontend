@@ -28,7 +28,7 @@ docker-push:
 	docker push ${GCR}/${IMAGENAME}:${GITREF}_${VERSION}
 
 docker-build:
-	docker build -f ./Dockerfile --build-arg CI_PAT=${CI_PAT} -t ${GCR}/${IMAGENAME}:${GITREF}_${VERSION} --build-arg TAG=${TAG} .
+	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile --build-arg CI_PAT=${CI_PAT} -t ${GCR}/${IMAGENAME}:${GITREF}_${VERSION} --build-arg TAG=${TAG} .
 
 push-tag:
 	bash ./push_tag.sh ${VERSION}

@@ -3,6 +3,7 @@ import React from 'react';
 
 import config from 'configs/app';
 import chevronIcon from 'icons/arrows/east-mini.svg';
+import stagenetIcon from 'icons/stagenet.svg';
 import testnetIcon from 'icons/testnet.svg';
 import { useAppContext } from 'lib/contexts/app';
 import * as cookies from 'lib/cookies';
@@ -60,7 +61,9 @@ const NavigationDesktop = () => {
       width={{ lg: isExpanded ? '229px' : '92px', xl: isCollapsed ? '92px' : '229px' }}
       { ...getDefaultTransitionProps({ transitionProperty: 'width, padding' }) }
     >
-      { config.chain.isTestnet && <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
+
+      { /* { config.chain.networkType==="testnet" && <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> } */ }
+      { config.chain.networkType === 'stagenet' ? <Icon as={ stagenetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> : <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
       <Box
         as="header"
         display="flex"
@@ -76,7 +79,7 @@ const NavigationDesktop = () => {
         transitionTimingFunction="ease"
       >
         <NetworkLogo isCollapsed={ isCollapsed }/>
-        {/* { Boolean(config.UI.sidebar.featuredNetworks) && <NetworkMenu isCollapsed={ isCollapsed }/> } */}
+        { /* { Boolean(config.UI.sidebar.featuredNetworks) && <NetworkMenu isCollapsed={ isCollapsed }/> } */ }
       </Box>
       <Box as="nav" mt={ 8 } w="100%">
         <VStack as="ul" spacing="1" alignItems="flex-start">

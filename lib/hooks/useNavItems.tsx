@@ -18,7 +18,7 @@ import privateTagIcon from 'icons/privattags.svg';
 import publicTagIcon from 'icons/publictags.svg';
 import apiDocsIcon from 'icons/restAPI.svg';
 import rpcIcon from 'icons/RPC.svg';
-import statsIcon from 'icons/stats.svg';
+// import statsIcon from 'icons/stats.svg';
 // import tokensIcon from 'icons/token.svg';
 import topAccountsIcon from 'icons/top-accounts.svg';
 import transactionsIcon from 'icons/transactions.svg';
@@ -161,12 +161,12 @@ export default function useNavItems(): ReturnType {
         icon: appsIcon,
         isActive: pathname.startsWith('/app'),
       } : null,
-      config.features.stats.isEnabled ? {
-        text: 'Charts & stats',
-        nextRoute: { pathname: '/stats' as const },
-        icon: statsIcon,
-        isActive: pathname === '/stats',
-      } : null,
+      // config.features.stats.isEnabled ? {
+      //   text: 'Charts & stats',
+      //   nextRoute: { pathname: '/stats' as const },
+      //   icon: statsIcon,
+      //   isActive: pathname === '/stats',
+      // } : null,
       apiNavItems.length > 0 && {
         text: 'API',
         icon: apiDocsIcon,

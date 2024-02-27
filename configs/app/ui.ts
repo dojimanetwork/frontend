@@ -30,8 +30,10 @@ const UI = Object.freeze({
       dark: getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_LOGO_DARK'),
     },
     icon: {
-      'default': getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_ICON'),
-      dark: getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_ICON_DARK'),
+      // 'default': getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_ICON'),
+      // dark: getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_ICON_DARK'),
+      'default': '/assets/small-logo.png',
+      dark: '/assets/small-logo.png',
     },
     hiddenLinks,
     otherLinks: parseEnvJson<Array<NavItemExternal>>(getEnvValue('NEXT_PUBLIC_OTHER_LINKS')) || [],

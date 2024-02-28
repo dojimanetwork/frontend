@@ -10,32 +10,32 @@ VERSION=$(shell bash ./get_next_tag.sh ${INCREMENT_TYPE})
 TAG=$(shell date +%Y-%m-%d)
 DATE=$(shell date +%Y-%m-%d)
 
+
 # ------------------------------- GitLab ------------------------------- #
-pull: ## Git pull repository
-@git clean -idf
-@git pull origin $(shell git rev-parse --abbrev-ref HEAD)
+git-pull: ## Git pull repository
+	@git clean -idf
+	@git pull origin $(shell git rev-parse --abbrev-ref HEAD)
 
-region-check:
-@if [ -z "${REGION}" ]; then\
-echo "add region env variable";\
-exit 1;\
-fi
+docker-login:
+	docker login -u ${CI_REGISTRY_USER} -p ${CR_PAT} ${CI_REGISTRY}
 
-ecr-check:
-@if [ -z "${GCR}" ]; then\
-echo "add gcr env variable";\
-exit 1;\
-fi
-docker-push: ecr-check
-docker push ${GCR}/${IMAGENAME}:${GITREF}_${VERSION}
+url-check:
+	@if [ -z "${GCR}" ]; then\
+		echo "add gcr env variable";\
+		exit 1;\
+    fi
 
-docker-build: ecr-check pull
-docker build -f ./Dockerfile -t ${GCR}/${IMAGENAME}:${GITREF}_${VERSION} .
+docker-push:
+	docker push ${GCR}/${IMAGENAME}:${GITREF}_${VERSION}
+
+docker-build:
+	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile --build-arg CI_PAT=${CI_PAT} -t ${GCR}/${IMAGENAME}:${GITREF}_${VERSION} --build-arg TAG=${TAG} .
 
 push-tag:
-bash ./push_tag.sh ${VERSION}
+	bash ./push_tag.sh ${VERSION}
 
 release: docker-build docker-push push-tag
 
 push-only-image: docker-build docker-push
+
 # ------------------------------------------------------------------ #

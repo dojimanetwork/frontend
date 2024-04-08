@@ -6,7 +6,7 @@ ifdef CI_COMMIT_BRANCH
 	BRANCH=$(shell echo ${CI_COMMIT_BRANCH} | sed 's/master/mocknet/g')
 	BUILDTAG=$(shell echo ${CI_COMMIT_BRANCH} | sed -e 's/master/mocknet/g;s/develop/mocknet/g;s/testnet-multichain/testnet/g;s/stage/stagenet/g')
 endif
-VERSION=$(shell bash ./get_next_tag.sh ${INCREMENT_TYPE})
+VERSION=$(shell bash ./get_next_git_tag.sh ${INCREMENT_TYPE})
 TAG=$(shell date +%Y-%m-%d)
 DATE=$(shell date +%Y-%m-%d)
 

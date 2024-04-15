@@ -26,8 +26,8 @@ const HOMEPAGE_PLATE_BACKGROUND_DEFAULT = 'radial-gradient(103.03% 103.03% at 0%
 const UI = Object.freeze({
   sidebar: {
     logo: {
-      'default': 'icons/dark.svg',
-      dark: 'icons/light.svg',
+      'default': getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_LOGO'),
+      dark: getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_LOGO_DARK'),
     },
     icon: {
       // 'default': getExternalAssetFilePath('NEXT_PUBLIC_NETWORK_ICON'),

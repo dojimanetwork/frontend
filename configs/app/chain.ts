@@ -16,7 +16,7 @@ const chain = Object.freeze({
   },
   rpcUrl: getEnvValue('NEXT_PUBLIC_NETWORK_RPC_URL'),
   isTestnet: getEnvValue('NEXT_PUBLIC_IS_TESTNET') === 'true',
-  networkType: 'stagenet',
+  networkType: 'testnet',
   verificationType: getEnvValue('NEXT_PUBLIC_NETWORK_VERIFICATION_TYPE') || 'mining',
 });
 

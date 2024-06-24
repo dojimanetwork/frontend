@@ -25,6 +25,18 @@ url-check:
 		exit 1;\
     fi
 
+azure-check:
+	@if [ -z "${AZURE}"]; then\
+		echo "add azure env variable";\
+		exit 1;\
+	fi
+
+azure-build: azure-check
+	DOCKER_BUILDKIT=1 docker build -f ./Dockerfile --build-arg CI_PAT=${CI_PAT} -t ${AZURE}/${IMAGENAME}:${GITREF}_${VERSION} --build-arg TAG=${TAG} .
+
+azure-push:
+	docker push ${AZURE}/${IMAGENAME}:${GITREF}_${VERSION}
+
 docker-push:
 	docker push ${GCR}/${IMAGENAME}:${GITREF}_${VERSION}
 
@@ -35,6 +47,8 @@ push-tag:
 	bash ./push_tag.sh ${VERSION}
 
 release: docker-build docker-push push-tag
+
+azure-release: azure-build azure-push
 
 push-only-image: docker-build docker-push
 

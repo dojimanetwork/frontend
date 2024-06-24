@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        dockerTool 'docker'
+        dockerTool 'Docker'
     }
     environment {
         IMAGENAME = 'blockscout-v2' // Set the credentials ID as an environment variable

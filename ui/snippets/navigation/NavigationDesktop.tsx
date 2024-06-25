@@ -63,7 +63,7 @@ const NavigationDesktop = () => {
     >
 
       { /* { config.chain.networkType==="testnet" && <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> } */ }
-      { config.chain.networkType === 'stagenet' ? <Icon as={ stagenetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> : <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
+      { config.chain.networkType === 'testnet' ? <Icon as={ testnetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> : <Icon as={ stagenetIcon } h="14px" w="auto" color="red.400" position="absolute" pl={ 3 } top="34px"/> }
       <Box
         as="header"
         display="flex"

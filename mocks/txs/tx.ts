@@ -22,13 +22,14 @@ export const base: Transaction = {
   },
   from: {
     hash: '0x047A81aFB05D9B1f8844bf60fcA05DCCFbC584B9',
-    implementation_name: null,
+    implementations: null,
     is_contract: false,
     name: null,
     is_verified: null,
     private_tags: [ ],
     public_tags: [ publicTag ],
     watchlist_names: [],
+    ens_domain_name: 'kitty.kitty.cat.eth',
   },
   gas_limit: '800000',
   gas_price: '48000000000',
@@ -47,13 +48,14 @@ export const base: Transaction = {
   timestamp: '2022-10-10T14:34:30.000000Z',
   to: {
     hash: '0xd789a607CEac2f0E14867de4EB15b15C9FFB5859',
-    implementation_name: null,
+    implementations: null,
     is_contract: false,
     is_verified: true,
     name: null,
     private_tags: [ privateTag ],
     public_tags: [],
     watchlist_names: [ watchlistName ],
+    ens_domain_name: null,
   },
   token_transfers: [],
   token_transfers_overflow: false,
@@ -90,13 +92,14 @@ export const withContractCreation: Transaction = {
   to: null,
   created_contract: {
     hash: '0xdda21946FF3FAa027104b15BE6970CA756439F5a',
-    implementation_name: null,
+    implementations: null,
     is_contract: true,
     is_verified: null,
     name: 'Shavuha token',
     private_tags: [],
     public_tags: [],
     watchlist_names: [],
+    ens_domain_name: null,
   },
   tx_types: [
     'contract_creation',
@@ -108,13 +111,14 @@ export const withTokenTransfer: Transaction = {
   hash: '0x62d597ebcf3e8d60096dd0363bc2f0f5e2df27ba1dacd696c51aa7c9409f3196',
   to: {
     hash: '0xd789a607CEac2f0E14867de4EB15b15C9FFB5859',
-    implementation_name: null,
+    implementations: null,
     is_contract: true,
     is_verified: true,
     name: 'ArianeeStore',
     private_tags: [ privateTag ],
     public_tags: [],
     watchlist_names: [ watchlistName ],
+    ens_domain_name: null,
   },
   token_transfers: [
     tokenTransferMock.erc20,
@@ -123,6 +127,8 @@ export const withTokenTransfer: Transaction = {
     tokenTransferMock.erc1155B,
     tokenTransferMock.erc1155C,
     tokenTransferMock.erc1155D,
+    tokenTransferMock.erc404A,
+    tokenTransferMock.erc404B,
   ],
   token_transfers_overflow: true,
   tx_types: [
@@ -161,13 +167,14 @@ export const withRawRevertReason: Transaction = {
   },
   to: {
     hash: '0xd789a607CEac2f0E14867de4EB15b15C9FFB5859',
-    implementation_name: null,
+    implementations: null,
     is_verified: true,
     is_contract: true,
     name: 'Bad guy',
     private_tags: [ ],
     public_tags: [],
     watchlist_names: [ ],
+    ens_domain_name: null,
   },
 };
 
@@ -276,13 +283,14 @@ export const stabilityTx: Transaction = {
   stability_fee: {
     dapp_address: {
       hash: '0xDc2B93f3291030F3F7a6D9363ac37757f7AD5C43',
-      implementation_name: null,
+      implementations: null,
       is_contract: false,
       is_verified: null,
       name: null,
       private_tags: [],
       public_tags: [],
       watchlist_names: [],
+      ens_domain_name: null,
     },
     dapp_fee: '34381250000000',
     token: {
@@ -300,13 +308,14 @@ export const stabilityTx: Transaction = {
     total_fee: '68762500000000',
     validator_address: {
       hash: '0x1432997a4058acbBe562F3c1E79738c142039044',
-      implementation_name: null,
+      implementations: null,
       is_contract: false,
       is_verified: null,
       name: null,
       private_tags: [],
       public_tags: [],
       watchlist_names: [],
+      ens_domain_name: null,
     },
     validator_fee: '34381250000000',
   },
@@ -333,4 +342,18 @@ export const base3 = {
 export const base4 = {
   ...base,
   hash: '0x22d597ebcf3e8d60096dd0363bc2f0f5e2df27ba1dacd696c51aa7c9409f3193',
+};
+
+export const withBlob = {
+  ...base,
+  blob_gas_price: '21518435987',
+  blob_gas_used: '131072',
+  blob_versioned_hashes: [
+    '0x01a8c328b0370068aaaef49c107f70901cd79adcda81e3599a88855532122e09',
+    '0x0197fdb17195c176b23160f335daabd4b6a231aaaadd73ec567877c66a3affd1',
+  ],
+  burnt_blob_fee: '2820464441688064',
+  max_fee_per_blob_gas: '60000000000',
+  tx_types: [ 'blob_transaction' as const ],
+  type: 3,
 };

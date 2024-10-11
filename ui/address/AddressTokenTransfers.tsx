@@ -1,4 +1,4 @@
-import { Flex, Hide, Icon, Show, Text, Tooltip, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Hide, Show, Text } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -9,23 +9,24 @@ import type { AddressFromToFilter, AddressTokenTransferResponse } from 'types/ap
 import type { TokenType } from 'types/api/token';
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
-import crossIcon from 'icons/cross.svg';
 import { getResourceKey } from 'lib/api/useApiQuery';
 import getFilterValueFromQuery from 'lib/getFilterValueFromQuery';
 import getFilterValuesFromQuery from 'lib/getFilterValuesFromQuery';
 import useIsMobile from 'lib/hooks/useIsMobile';
+import useIsMounted from 'lib/hooks/useIsMounted';
 import { apos } from 'lib/html-entities';
 import getQueryParamString from 'lib/router/getQueryParamString';
 import useSocketChannel from 'lib/socket/useSocketChannel';
 import useSocketMessage from 'lib/socket/useSocketMessage';
 import { TOKEN_TYPE_IDS } from 'lib/token/tokenTypes';
 import { getTokenTransfersStub } from 'stubs/token';
-import ActionBar from 'ui/shared/ActionBar';
+import ActionBar, { ACTION_BAR_HEIGHT_DESKTOP } from 'ui/shared/ActionBar';
 import DataListDisplay from 'ui/shared/DataListDisplay';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import HashStringShorten from 'ui/shared/HashStringShorten';
 import Pagination from 'ui/shared/pagination/Pagination';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
+import ResetIconButton from 'ui/shared/ResetIconButton';
 import * as SocketNewItemsNotice from 'ui/shared/SocketNewItemsNotice';
 import TokenTransferFilter from 'ui/shared/TokenTransfer/TokenTransferFilter';
 import TokenTransferList from 'ui/shared/TokenTransfer/TokenTransferList';
@@ -63,14 +64,17 @@ const matchFilters = (filters: Filters, tokenTransfer: TokenTransfer, address?: 
 
 type Props = {
   scrollRef?: React.RefObject<HTMLDivElement>;
+  shouldRender?: boolean;
+  isQueryEnabled?: boolean;
   // for tests only
   overloadCount?: number;
 }
 
-const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Props) => {
+const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT, shouldRender = true, isQueryEnabled = true }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const isMounted = useIsMounted();
 
   const currentAddress = getQueryParamString(router.query.hash);
 
@@ -92,6 +96,7 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
     filters: tokenFilter ? { token: tokenFilter } : filters,
     scrollRef,
     options: {
+      enabled: isQueryEnabled,
       placeholderData: getTokenTransfersStub(undefined, {
         block_number: 7793535,
         index: 46,
@@ -114,9 +119,6 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
   const resetTokenFilter = React.useCallback(() => {
     onFilterChange({});
   }, [ onFilterChange ]);
-
-  const resetTokenIconColor = useColorModeValue('blue.600', 'blue.300');
-  const resetTokenIconHoverColor = useColorModeValue('blue.400', 'blue.200');
 
   const handleNewSocketMessage: SocketMessage.AddressTokenTransfer['handler'] = (payload) => {
     setSocketAlert('');
@@ -182,6 +184,18 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
     handler: handleNewSocketMessage,
   });
 
+  const tokenData = React.useMemo(() => ({
+    address: tokenFilter || '',
+    name: '',
+    icon_url: '',
+    symbol: '',
+    type: 'ERC-20' as const,
+  }), [ tokenFilter ]);
+
+  if (!isMounted || !shouldRender) {
+    return null;
+  }
+
   const numActiveFilters = (filters.type?.length || 0) + (filters.filter ? 1 : 0);
   const isActionBarHidden = !tokenFilter && !numActiveFilters && !data?.items.length && !currentAddress;
 
@@ -192,7 +206,7 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
           data={ data?.items }
           baseAddress={ currentAddress }
           showTxInfo
-          top={ isActionBarHidden ? 0 : 80 }
+          top={ isActionBarHidden ? 0 : ACTION_BAR_HEIGHT_DESKTOP }
           enableTimeIncrement
           showSocketInfo={ pagination.page === 1 && !tokenFilter }
           socketInfoAlert={ socketAlert }
@@ -221,33 +235,13 @@ const AddressTokenTransfers = ({ scrollRef, overloadCount = OVERLOAD_COUNT }: Pr
     </>
   ) : null;
 
-  const tokenData = React.useMemo(() => ({
-    address: tokenFilter || '',
-    name: '',
-    icon_url: '',
-    symbol: '',
-    type: 'ERC-20' as const,
-  }), [ tokenFilter ]);
-
   const tokenFilterComponent = tokenFilter && (
     <Flex alignItems="center" flexWrap="wrap" mb={{ base: isActionBarHidden ? 3 : 6, lg: 0 }} mr={ 4 }>
       <Text whiteSpace="nowrap" mr={ 2 } py={ 1 }>Filtered by token</Text>
       <Flex alignItems="center" py={ 1 }>
         <TokenEntity.Icon token={ tokenData } isLoading={ isPlaceholderData }/>
         { isMobile ? <HashStringShorten hash={ tokenFilter }/> : tokenFilter }
-        <Tooltip label="Reset filter">
-          <Flex>
-            <Icon
-              as={ crossIcon }
-              boxSize={ 5 }
-              ml={ 1 }
-              color={ resetTokenIconColor }
-              cursor="pointer"
-              _hover={{ color: resetTokenIconHoverColor }}
-              onClick={ resetTokenFilter }
-            />
-          </Flex>
-        </Tooltip>
+        <ResetIconButton onClick={ resetTokenFilter }/>
       </Flex>
     </Flex>
   );

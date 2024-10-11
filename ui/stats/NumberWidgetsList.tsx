@@ -3,9 +3,11 @@ import React from 'react';
 
 import useApiQuery from 'lib/api/useApiQuery';
 import { STATS_COUNTER } from 'stubs/stats';
+import StatsWidget from 'ui/shared/stats/StatsWidget';
 
 import DataFetchAlert from '../shared/DataFetchAlert';
-import NumberWidget from './NumberWidget';
+
+const UNITS_WITHOUT_SPACE = [ 's' ];
 
 const NumberWidgetsList = () => {
   const { data, isPlaceholderData, isError } = useApiQuery('stats_counters', {
@@ -15,31 +17,44 @@ const NumberWidgetsList = () => {
   });
 
   if (isError) {
-    return <DataFetchAlert />;
+    return <DataFetchAlert/>;
   }
 
   return (
     <Grid
       gridTemplateColumns={{ base: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
-      gridGap={4}
+      gridGap={ 4 }
     >
       {
 
         data?.counters?.map(({ id, title, value, units, description }, index) => {
-          if (id === "totalContracts" || id === "lastNewContracts") {
+          if (id === 'totalContracts' || id === 'lastNewContracts') {
             return null;
           }
+          // return (
+          //     <NumberWidget
+          //       key={id + (isPlaceholderData ? index : '')}
+          //       label={title}
+          //       value={`${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3, notation: 'compact' })} ${units ? units : ''}`}
+          //       isLoading={isPlaceholderData}
+          //       description={description}
+          //     />
+          let unitsStr = '';
+          if (UNITS_WITHOUT_SPACE.includes(units)) {
+            unitsStr = units;
+          } else if (units) {
+            unitsStr = ' ' + units;
+          }
+
           return (
-              <NumberWidget
-                key={id + (isPlaceholderData ? index : '')}
-                label={title}
-                value={`${Number(value).toLocaleString(undefined, { maximumFractionDigits: 3, notation: 'compact' })} ${units ? units : ''}`}
-                isLoading={isPlaceholderData}
-                description={description}
-              />
+            <StatsWidget
+              key={ id + (isPlaceholderData ? index : '') }
+              label={ title }
+              value={ `${ Number(value).toLocaleString(undefined, { maximumFractionDigits: 3, notation: 'compact' }) }${ unitsStr }` }
+              isLoading={ isPlaceholderData }
+              hint={ description }
+            />
           );
-        
-        
         })
       }
     </Grid>

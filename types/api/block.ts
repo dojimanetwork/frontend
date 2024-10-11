@@ -2,6 +2,9 @@ import type { AddressParam } from 'types/api/addressParams';
 import type { Reward } from 'types/api/reward';
 import type { Transaction } from 'types/api/transaction';
 
+import type { ArbitrumBatchStatus, ArbitrumL2TxData } from './arbitrumL2';
+import type { ZkSyncBatchesItem } from './zkSyncL2';
+
 export type BlockType = 'block' | 'reorg' | 'uncle';
 
 export interface Block {
@@ -13,7 +16,7 @@ export interface Block {
   hash: string;
   parent_hash: string;
   difficulty: string;
-  total_difficulty: string;
+  total_difficulty: string | null;
   gas_used: string | null;
   gas_limit: string;
   nonce: string;
@@ -36,6 +39,28 @@ export interface Block {
   bitcoin_merged_mining_merkle_proof?: string | null;
   hash_for_merged_mining?: string | null;
   minimum_gas_price?: string | null;
+  // BLOB FIELDS
+  blob_gas_price?: string;
+  blob_gas_used?: string;
+  burnt_blob_fees?: string;
+  excess_blob_gas?: string;
+  blob_tx_count?: number;
+  // ZKSYNC FIELDS
+  zksync?: Omit<ZkSyncBatchesItem, 'number' | 'tx_count' | 'timestamp'> & {
+    'batch_number': number | null;
+  };
+  arbitrum?: ArbitrumBlockData;
+}
+
+type ArbitrumBlockData = {
+  'batch_number': number;
+  'commitment_transaction': ArbitrumL2TxData;
+  'confirmation_transaction': ArbitrumL2TxData;
+  'delayed_messages': number;
+  'l1_block_height': number;
+  'send_count': number;
+  'send_root': string;
+  'status': ArbitrumBatchStatus;
 }
 
 export interface BlocksResponse {
@@ -69,7 +94,7 @@ export type BlockWithdrawalsResponse = {
   next_page_params: {
     index: number;
     items_count: number;
-  };
+  } | null;
 }
 
 export type BlockWithdrawalsItem = {

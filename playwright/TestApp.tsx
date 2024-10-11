@@ -1,20 +1,25 @@
 import { ChakraProvider } from '@chakra-ui/react';
+import { GrowthBookProvider } from '@growthbook/growthbook-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { w3mProvider } from '@web3modal/ethereum';
 import React from 'react';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet } from 'wagmi/chains';
+import { http } from 'viem';
+import { WagmiProvider, createConfig } from 'wagmi';
+import { sepolia } from 'wagmi/chains';
+import { mock } from 'wagmi/connectors';
 
 import type { Props as PageProps } from 'nextjs/getServerSideProps';
 
+import config from 'configs/app';
 import { AppContextProvider } from 'lib/contexts/app';
 import { SocketProvider } from 'lib/socket/context';
-import * as app from 'playwright/utils/app';
 import theme from 'theme';
 
-type Props = {
+import { port as socketPort } from './utils/socket';
+
+export type Props = {
   children: React.ReactNode;
   withSocket?: boolean;
+  withWalletClient?: boolean;
   appContext?: {
     pageProps: PageProps;
   };
@@ -24,30 +29,40 @@ const defaultAppContext = {
   pageProps: {
     cookies: '',
     referrer: '',
-    id: '',
-    height_or_hash: '',
-    hash: '',
-    number: '',
-    q: '',
+    query: {},
+    adBannerProvider: 'slise' as const,
+    apiData: null,
   },
 };
 
-// >>> Web3 stuff
-const { publicClient } = configureChains(
-  [ mainnet ],
-  [
-    w3mProvider({ projectId: '' }),
-  ],
-);
-
 const wagmiConfig = createConfig({
-  autoConnect: false,
-  connectors: [ ],
-  publicClient,
+  chains: [ sepolia ],
+  connectors: [
+    mock({
+      accounts: [
+        '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      ],
+    }),
+  ],
+  transports: {
+    [sepolia.id]: http(),
+  },
 });
-// <<<<
 
-const TestApp = ({ children, withSocket, appContext = defaultAppContext }: Props) => {
+const WalletClientProvider = ({ children, withWalletClient }: { children: React.ReactNode; withWalletClient?: boolean }) => {
+  if (withWalletClient) {
+    return (
+      <WagmiProvider config={ wagmiConfig }>
+        { children }
+      </WagmiProvider>
+    );
+  }
+
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{ children }</>;
+};
+
+const TestApp = ({ children, withSocket, withWalletClient = true, appContext = defaultAppContext }: Props) => {
   const [ queryClient ] = React.useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -60,11 +75,13 @@ const TestApp = ({ children, withSocket, appContext = defaultAppContext }: Props
   return (
     <ChakraProvider theme={ theme }>
       <QueryClientProvider client={ queryClient }>
-        <SocketProvider url={ withSocket ? `ws://${ app.domain }:${ app.socketPort }` : undefined }>
+        <SocketProvider url={ withSocket ? `ws://${ config.app.host }:${ socketPort }` : undefined }>
           <AppContextProvider { ...appContext }>
-            <WagmiConfig config={ wagmiConfig }>
-              { children }
-            </WagmiConfig>
+            <GrowthBookProvider>
+              <WalletClientProvider withWalletClient={ withWalletClient }>
+                { children }
+              </WalletClientProvider>
+            </GrowthBookProvider>
           </AppContextProvider>
         </SocketProvider>
       </QueryClientProvider>

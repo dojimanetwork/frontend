@@ -1,7 +1,17 @@
-import { Box, Popover, PopoverTrigger, PopoverContent, PopoverBody, useDisclosure, PopoverFooter } from '@chakra-ui/react';
+import {
+  Box,
+  Portal,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverFooter,
+  useDisclosure,
+  useOutsideClick,
+} from '@chakra-ui/react';
 import _debounce from 'lodash/debounce';
 import { useRouter } from 'next/router';
-import type { FormEvent, FocusEvent } from 'react';
+import type { FormEvent } from 'react';
 import React from 'react';
 import { Element } from 'react-scroll';
 
@@ -10,8 +20,9 @@ import { route } from 'nextjs-routes';
 import useIsMobile from 'lib/hooks/useIsMobile';
 import * as mixpanel from 'lib/mixpanel/index';
 import { getRecentSearchKeywords, saveToRecentKeywords } from 'lib/recentSearchKeywords';
-import LinkInternal from 'ui/shared/LinkInternal';
+import LinkInternal from 'ui/shared/links/LinkInternal';
 
+import SearchBarBackdrop from './SearchBarBackdrop';
 import SearchBarInput from './SearchBarInput';
 import SearchBarRecentKeywords from './SearchBarRecentKeywords';
 import SearchBarSuggest from './SearchBarSuggest/SearchBarSuggest';
@@ -59,13 +70,15 @@ const SearchBar = ({ isHomepage }: Props) => {
     inputRef.current?.querySelector('input')?.blur();
   }, [ onClose ]);
 
-  const handleBlur = React.useCallback((event: FocusEvent<HTMLFormElement>) => {
-    const isFocusInMenu = menuRef.current?.contains(event.relatedTarget);
-    const isFocusInInput = inputRef.current?.contains(event.relatedTarget);
-    if (!isFocusInMenu && !isFocusInInput) {
-      onClose();
+  const handleOutsideClick = React.useCallback((event: Event) => {
+    const isFocusInInput = inputRef.current?.contains(event.target as Node);
+
+    if (!isFocusInInput) {
+      handelHide();
     }
-  }, [ onClose ]);
+  }, [ handelHide ]);
+
+  useOutsideClick({ ref: menuRef, handler: handleOutsideClick });
 
   const handleClear = React.useCallback(() => {
     handleSearchTermChange('');
@@ -82,7 +95,7 @@ const SearchBar = ({ isHomepage }: Props) => {
     onClose();
   }, [ pathname, searchTerm, onClose ]);
 
-  const menuPaddingX = isMobile && !isHomepage ? 32 : 0;
+  const menuPaddingX = isMobile && !isHomepage ? 24 : 0;
   const calculateMenuWidth = React.useCallback(() => {
     menuWidth.current = (inputRef.current?.getBoundingClientRect().width || 0) - menuPaddingX;
   }, [ menuPaddingX ]);
@@ -104,74 +117,73 @@ const SearchBar = ({ isHomepage }: Props) => {
   }, [ calculateMenuWidth ]);
 
   return (
-    <Popover
-      isOpen={ isOpen && (searchTerm.trim().length > 0 || recentSearchKeywords.length > 0) }
-      autoFocus={ false }
-      onClose={ onClose }
-      placement="bottom-start"
-      offset={ isMobile && !isHomepage ? [ 16, -12 ] : undefined }
-      isLazy
-    >
-      <PopoverTrigger>
-        <SearchBarInput
-          ref={ inputRef }
-          onChange={ handleSearchTermChange }
-          onSubmit={ handleSubmit }
-          onFocus={ handleFocus }
-          onBlur={ handleBlur }
-          onHide={ handelHide }
-          onClear={ handleClear }
-          isHomepage={ isHomepage }
-          value={ searchTerm }
-        />
-      </PopoverTrigger>
-      <PopoverContent
-        w={ `${ menuWidth.current }px` }
-        ref={ menuRef }
+    <>
+      <Popover
+        isOpen={ isOpen && (searchTerm.trim().length > 0 || recentSearchKeywords.length > 0) }
+        autoFocus={ false }
+        onClose={ onClose }
+        placement="bottom-start"
+        offset={ isMobile && !isHomepage ? [ 12, -4 ] : undefined }
+        isLazy
       >
-        <PopoverBody
-          p={ 0 }
-          color="chakra-body-text"
-          sx={
-            isHomepage ? {
-              mark: { bgColor: 'green.100' },
-              '*::-webkit-scrollbar-thumb': { backgroundColor: 'blackAlpha.300' },
-            } : {}
-          }
-        >
-          <Box
-            maxH="50vh"
-            overflowY="auto"
-            id={ SCROLL_CONTAINER_ID }
-            ref={ scrollRef }
-            as={ Element }
-            px={ 4 }
+        <PopoverTrigger>
+          <SearchBarInput
+            ref={ inputRef }
+            onChange={ handleSearchTermChange }
+            onSubmit={ handleSubmit }
+            onFocus={ handleFocus }
+            onHide={ handelHide }
+            onClear={ handleClear }
+            isHomepage={ isHomepage }
+            value={ searchTerm }
+            isSuggestOpen={ isOpen }
+          />
+        </PopoverTrigger>
+        <Portal>
+          <PopoverContent
+            w={ `${ menuWidth.current }px` }
+            ref={ menuRef }
           >
-            { searchTerm.trim().length === 0 && recentSearchKeywords.length > 0 && (
-              <SearchBarRecentKeywords onClick={ handleSearchTermChange } onClear={ onClose }/>
-            ) }
-            { searchTerm.trim().length > 0 && (
-              <SearchBarSuggest
-                query={ query }
-                searchTerm={ debouncedSearchTerm }
-                onItemClick={ handleItemClick }
-                containerId={ SCROLL_CONTAINER_ID }
-              />
-            ) }
-          </Box>
-        </PopoverBody>
-        { searchTerm.trim().length > 0 && query.data && query.data.length >= 50 && (
-          <PopoverFooter>
-            <LinkInternal
-              href={ route({ pathname: '/search-results', query: { q: searchTerm } }) }
-              fontSize="sm"
+            <PopoverBody
+              p={ 0 }
+              color="chakra-body-text"
             >
-              View all results
-            </LinkInternal>
-          </PopoverFooter>
-        ) }
-      </PopoverContent>
-    </Popover>
+              <Box
+                maxH="50vh"
+                overflowY="auto"
+                id={ SCROLL_CONTAINER_ID }
+                ref={ scrollRef }
+                as={ Element }
+                px={ 4 }
+              >
+                { searchTerm.trim().length === 0 && recentSearchKeywords.length > 0 && (
+                  <SearchBarRecentKeywords onClick={ handleSearchTermChange } onClear={ onClose }/>
+                ) }
+                { searchTerm.trim().length > 0 && (
+                  <SearchBarSuggest
+                    query={ query }
+                    searchTerm={ debouncedSearchTerm }
+                    onItemClick={ handleItemClick }
+                    containerId={ SCROLL_CONTAINER_ID }
+                  />
+                ) }
+              </Box>
+            </PopoverBody>
+            { searchTerm.trim().length > 0 && query.data && query.data.length >= 50 && (
+              <PopoverFooter>
+                <LinkInternal
+                  href={ route({ pathname: '/search-results', query: { q: searchTerm } }) }
+                  fontSize="sm"
+                >
+                View all results
+                </LinkInternal>
+              </PopoverFooter>
+            ) }
+          </PopoverContent>
+        </Portal>
+      </Popover>
+      <SearchBarBackdrop isOpen={ isOpen }/>
+    </>
   );
 };
 

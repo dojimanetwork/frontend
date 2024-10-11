@@ -1,12 +1,15 @@
-import { Button, Menu, MenuButton, MenuList, Icon, Flex, Skeleton, chakra } from '@chakra-ui/react';
+import { Box, IconButton, Menu, MenuButton, MenuList, Skeleton, chakra } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React from 'react';
 
+import type { ItemProps } from './types';
+
 import config from 'configs/app';
-import iconArrow from 'icons/arrows/east-mini.svg';
+import useFetchProfileInfo from 'lib/hooks/useFetchProfileInfo';
 import useIsAccountActionAllowed from 'lib/hooks/useIsAccountActionAllowed';
 import * as mixpanel from 'lib/mixpanel/index';
 import getQueryParamString from 'lib/router/getQueryParamString';
+import IconSvg from 'ui/shared/IconSvg';
 
 import PrivateTagMenuItem from './items/PrivateTagMenuItem';
 import PublicTagMenuItem from './items/PublicTagMenuItem';
@@ -25,6 +28,8 @@ const AccountActionsMenu = ({ isLoading, className }: Props) => {
   const isTxPage = router.pathname === '/tx/[hash]';
   const isAccountActionAllowed = useIsAccountActionAllowed();
 
+  const userInfoQuery = useFetchProfileInfo();
+
   const handleButtonClick = React.useCallback(() => {
     mixpanel.logEvent(mixpanel.EventTypes.PAGE_WIDGET, { Type: 'Address actions (more button)' });
   }, []);
@@ -33,32 +38,57 @@ const AccountActionsMenu = ({ isLoading, className }: Props) => {
     return null;
   }
 
+  const userWithoutEmail = userInfoQuery.data && !userInfoQuery.data.email;
+
+  const items = [
+    {
+      render: (props: ItemProps) => <TokenInfoMenuItem { ...props }/>,
+      enabled: isTokenPage && config.features.addressVerification.isEnabled && !userWithoutEmail,
+    },
+    {
+      render: (props: ItemProps) => <PrivateTagMenuItem { ...props } entityType={ isTxPage ? 'tx' : 'address' }/>,
+      enabled: true,
+    },
+    {
+      render: (props: ItemProps) => <PublicTagMenuItem { ...props }/>,
+      enabled: !isTxPage && config.features.publicTagsSubmission.isEnabled,
+    },
+  ].filter(({ enabled }) => enabled);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  if (isLoading) {
+    return <Skeleton w="36px" h="32px" borderRadius="base" className={ className }/>;
+  }
+
+  if (items.length === 1) {
+    return (
+      <Box className={ className }>
+        { items[0].render({ type: 'button', hash, onBeforeClick: isAccountActionAllowed }) }
+      </Box>
+    );
+  }
+
   return (
     <Menu>
-      <Skeleton isLoaded={ !isLoading } borderRadius="base" className={ className }>
-        <MenuButton
-          as={ Button }
-          size="sm"
-          variant="outline"
-          onClick={ handleButtonClick }
-        >
-          <Flex alignItems="center">
-            <span>More</span>
-            <Icon as={ iconArrow } transform="rotate(-90deg)" boxSize={ 5 } ml={ 1 }/>
-          </Flex>
-        </MenuButton>
-      </Skeleton>
+      <MenuButton
+        as={ IconButton }
+        className={ className }
+        size="sm"
+        variant="outline"
+        colorScheme="gray"
+        px="7px"
+        onClick={ handleButtonClick }
+        icon={ <IconSvg name="dots" boxSize="18px"/> }
+      />
       <MenuList minWidth="180px" zIndex="popover">
-        { isTokenPage && config.features.addressVerification.isEnabled &&
-          <TokenInfoMenuItem py={ 2 } px={ 4 } hash={ hash } onBeforeClick={ isAccountActionAllowed }/> }
-        <PrivateTagMenuItem
-          py={ 2 }
-          px={ 4 }
-          hash={ hash }
-          onBeforeClick={ isAccountActionAllowed }
-          type={ isTxPage ? 'tx' : 'address' }
-        />
-        { !isTxPage && <PublicTagMenuItem py={ 2 } px={ 4 } hash={ hash } onBeforeClick={ isAccountActionAllowed }/> }
+        { items.map(({ render }, index) => (
+          <React.Fragment key={ index }>
+            { render({ type: 'menu_item', hash, onBeforeClick: isAccountActionAllowed }) }
+          </React.Fragment>
+        )) }
       </MenuList>
     </Menu>
   );

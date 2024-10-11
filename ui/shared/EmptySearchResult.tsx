@@ -1,10 +1,13 @@
-import { Box, Heading, Icon, Text } from '@chakra-ui/react';
+import { Box, Heading, Text, Icon } from '@chakra-ui/react';
 import React from 'react';
 
-import emptyIcon from 'icons/empty_search_result.svg';
+// This icon doesn't work properly when it is in the sprite
+// Probably because of radial gradient
+// eslint-disable-next-line no-restricted-imports
+import emptySearchResultIcon from 'icons/empty_search_result.svg';
 
 interface Props {
-  text: string;
+  text: string | JSX.Element;
 }
 
 const EmptySearchResult = ({ text }: Props) => {
@@ -13,27 +16,21 @@ const EmptySearchResult = ({ text }: Props) => {
       display="flex"
       flexDirection="column"
       alignItems="center"
+      justifyContent="center"
+      mt="50px"
     >
       <Icon
-        as={ emptyIcon }
-        boxSize={ 60 }
-        display="block"
+        as={ emptySearchResultIcon }
+        w={{ base: '160px', sm: '240px' }}
+        h="auto"
+        mb={{ base: 4, sm: 6 }}
       />
 
-      <Heading
-        as="h3"
-        marginBottom={ 2 }
-        fontSize={{ base: '2xl', sm: '3xl' }}
-        fontWeight="semibold"
-      >
+      <Heading as="h4" size="sm" mb={ 2 }>
         No results
       </Heading>
 
-      <Text
-        fontSize={{ base: 'sm' }}
-        variant="secondary"
-        align="center"
-      >
+      <Text fontSize={{ base: 'sm', sm: 'md' }} align="center">
         { text }
       </Text>
     </Box>

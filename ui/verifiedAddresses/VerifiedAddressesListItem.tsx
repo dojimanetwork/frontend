@@ -3,11 +3,10 @@ import React from 'react';
 
 import type { TokenInfoApplication, VerifiedAddress } from 'types/api/account';
 
-import editIcon from 'icons/edit.svg';
 import dayjs from 'lib/date/dayjs';
-import Icon from 'ui/shared/chakra/Icon';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import TokenEntity from 'ui/shared/entities/token/TokenEntity';
+import IconSvg from 'ui/shared/IconSvg';
 import ListItemMobileGrid from 'ui/shared/ListItemMobile/ListItemMobileGrid';
 
 import VerifiedAddressesStatus from './VerifiedAddressesStatus';
@@ -71,7 +70,7 @@ const VerifiedAddressesListItem = ({ item, application, onAdd, onEdit, isLoading
             borderRadius="none"
             flexShrink={ 0 }
             onClick={ handleEditClick }
-            icon={ <Icon as={ editIcon }/> }
+            icon={ <IconSvg name="edit" boxSize={ 4 } flexShrink={ 0 }/> }
           />
         </Tooltip>
       </>
@@ -83,7 +82,7 @@ const VerifiedAddressesListItem = ({ item, application, onAdd, onEdit, isLoading
       <ListItemMobileGrid.Label isLoading={ isLoading }>Address</ListItemMobileGrid.Label>
       <ListItemMobileGrid.Value>
         <AddressEntity
-          address={{ hash: item.contractAddress, is_contract: true, implementation_name: null }}
+          address={{ hash: item.contractAddress, is_contract: true }}
           isLoading={ isLoading }
           w="100%"
         />

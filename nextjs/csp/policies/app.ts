@@ -9,7 +9,6 @@ import { KEY_WORDS } from '../utils';
 const MAIN_DOMAINS = [
   `*.${ config.app.host }`,
   config.app.host,
-  getFeaturePayload(config.features.sol2uml)?.api.endpoint,
 ].filter(Boolean);
 
 const getCspReportUrl = () => {
@@ -32,6 +31,8 @@ const getCspReportUrl = () => {
 };
 
 export function app(): CspDev.DirectiveDescriptor {
+  const marketplaceFeaturePayload = getFeaturePayload(config.features.marketplace);
+
   return {
     'default-src': [
       // KEY_WORDS.NONE,
@@ -54,6 +55,9 @@ export function app(): CspDev.DirectiveDescriptor {
       getFeaturePayload(config.features.sol2uml)?.api.endpoint,
       getFeaturePayload(config.features.verifiedTokens)?.api.endpoint,
       getFeaturePayload(config.features.addressVerification)?.api.endpoint,
+      getFeaturePayload(config.features.nameService)?.api.endpoint,
+      getFeaturePayload(config.features.addressMetadata)?.api.endpoint,
+      marketplaceFeaturePayload && 'api' in marketplaceFeaturePayload ? marketplaceFeaturePayload.api.endpoint : '',
 
       // chain RPC server
       config.chain.rpcUrl,
@@ -113,6 +117,7 @@ export function app(): CspDev.DirectiveDescriptor {
 
     'font-src': [
       KEY_WORDS.DATA,
+      ...MAIN_DOMAINS,
     ],
 
     'object-src': [
@@ -126,6 +131,10 @@ export function app(): CspDev.DirectiveDescriptor {
     'frame-src': [
       // could be a marketplace app or NFT media (html-page)
       '*',
+    ],
+
+    'frame-ancestors': [
+      KEY_WORDS.SELF,
     ],
 
     ...((() => {

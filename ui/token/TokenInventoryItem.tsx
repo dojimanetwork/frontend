@@ -1,31 +1,33 @@
 import { Box, Flex, Text, Link, useColorModeValue, Skeleton } from '@chakra-ui/react';
 import React from 'react';
 
-import type { TokenInstance } from 'types/api/token';
+import type { TokenInfo, TokenInstance } from 'types/api/token';
 
 import { route } from 'nextjs-routes';
 
 import useIsMobile from 'lib/hooks/useIsMobile';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
-import LinkInternal from 'ui/shared/LinkInternal';
+import LinkInternal from 'ui/shared/links/LinkInternal';
 import NftMedia from 'ui/shared/nft/NftMedia';
 import TruncatedTextTooltip from 'ui/shared/TruncatedTextTooltip';
 
-type Props = { item: TokenInstance; isLoading: boolean };
+type Props = { item: TokenInstance; token: TokenInfo; isLoading: boolean };
 
-const NFTItem = ({ item, isLoading }: Props) => {
+const TokenInventoryItem = ({ item, token, isLoading }: Props) => {
 
   const isMobile = useIsMobile();
 
   const mediaElement = (
     <NftMedia
       mb="18px"
-      url={ item.animation_url || item.image_url }
+      animationUrl={ item.animation_url }
+      imageUrl={ item.image_url }
       isLoading={ isLoading }
+      autoplayVideo={ false }
     />
   );
 
-  const url = route({ pathname: '/token/[hash]/instance/[id]', query: { hash: item.token.address, id: item.id } });
+  const url = route({ pathname: '/token/[hash]/instance/[id]', query: { hash: token.address, id: item.id } });
 
   return (
     <Box
@@ -76,4 +78,4 @@ const NFTItem = ({ item, isLoading }: Props) => {
   );
 };
 
-export default NFTItem;
+export default TokenInventoryItem;

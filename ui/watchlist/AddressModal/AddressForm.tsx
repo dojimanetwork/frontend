@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
@@ -22,7 +21,7 @@ import TagInput from 'ui/shared/TagInput';
 import AddressFormNotifications from './AddressFormNotifications';
 
 // does it depend on the network?
-const NOTIFICATIONS = [ 'native', 'ERC-20', 'ERC-721' ] as const;
+const NOTIFICATIONS = [ 'native', 'ERC-20', 'ERC-721', 'ERC-404' ] as const;
 
 const TAG_MAX_LENGTH = 35;
 
@@ -50,6 +49,10 @@ type Inputs = {
       outcoming: boolean;
       incoming: boolean;
     };
+    'ERC-404': {
+      outcoming: boolean;
+      incoming: boolean;
+    };
   };
 }
 
@@ -59,11 +62,12 @@ type Checkboxes = 'notification' |
 'notification_settings.ERC-20.outcoming' |
 'notification_settings.ERC-20.incoming' |
 'notification_settings.ERC-721.outcoming' |
-'notification_settings.ERC-721.incoming';
+'notification_settings.ERC-721.incoming' |
+'notification_settings.ERC-404.outcoming' |
+'notification_settings.ERC-404.incoming';
 
 const AddressForm: React.FC<Props> = ({ data, onSuccess, setAlertVisible, isAdd }) => {
   const [ pending, setPending ] = useState(false);
-  const formBackgroundColor = useColorModeValue('white', 'gray.900');
 
   let notificationsDefault = {} as Inputs['notification_settings'];
   if (!data?.notification_settings) {
@@ -136,15 +140,15 @@ const AddressForm: React.FC<Props> = ({ data, onSuccess, setAlertVisible, isAdd 
     return (
       <AddressInput<Inputs, 'address'>
         field={ field }
-        backgroundColor={ formBackgroundColor }
+        bgColor="dialog_bg"
         error={ errors.address }
       />
     );
-  }, [ errors, formBackgroundColor ]);
+  }, [ errors ]);
 
   const renderTagInput = useCallback(({ field }: {field: ControllerRenderProps<Inputs, 'tag'>}) => {
-    return <TagInput<Inputs, 'tag'> field={ field } error={ errors.tag } backgroundColor={ formBackgroundColor }/>;
-  }, [ errors, formBackgroundColor ]);
+    return <TagInput<Inputs, 'tag'> field={ field } error={ errors.tag } bgColor="dialog_bg"/>;
+  }, [ errors ]);
 
   // eslint-disable-next-line react/display-name
   const renderCheckbox = useCallback((text: string) => ({ field }: {field: ControllerRenderProps<Inputs, Checkboxes>}) => (

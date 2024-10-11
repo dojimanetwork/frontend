@@ -10,6 +10,7 @@ const headers = require('./nextjs/headers');
 const redirects = require('./nextjs/redirects');
 const rewrites = require('./nextjs/rewrites');
 
+/** @type {import('next').NextConfig} */
 const moduleExports = {
   transpilePackages: [
     'react-syntax-highlighter',
@@ -31,6 +32,7 @@ const moduleExports = {
       },
     );
     config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
 
     return config;
   },
@@ -44,7 +46,16 @@ const moduleExports = {
   output: 'standalone',
   productionBrowserSourceMaps: true,
   experimental: {
-    instrumentationHook: true,
+    instrumentationHook: process.env.NEXT_OPEN_TELEMETRY_ENABLED === 'true',
+    // disabled as it is not stable yet
+    // turbo: {
+    //   rules: {
+    //     '*.svg': {
+    //       loaders: [ '@svgr/webpack' ],
+    //       as: '*.js',
+    //     },
+    //   },
+    // },
   },
 };
 

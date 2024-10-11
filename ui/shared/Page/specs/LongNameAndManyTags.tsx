@@ -1,13 +1,13 @@
 /* eslint-disable max-len */
-import { Icon } from '@chakra-ui/react';
 import React from 'react';
 
 import type { TokenInfo } from 'types/api/token';
 
-import iconVerifiedToken from 'icons/verified_token.svg';
 import { publicTag, privateTag, watchlistName } from 'mocks/address/tag';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
-import EntityTags from 'ui/shared/EntityTags';
+import EntityTags from 'ui/shared/EntityTags/EntityTags';
+import formatUserTags from 'ui/shared/EntityTags/formatUserTags';
+import IconSvg from 'ui/shared/IconSvg';
 import NetworkExplorers from 'ui/shared/NetworkExplorers';
 
 import PageTitle from '../PageTitle';
@@ -28,23 +28,21 @@ const LongNameAndManyTags = () => {
 
   const contentAfter = (
     <>
-      <Icon as={ iconVerifiedToken } color="green.500" boxSize={ 6 } cursor="pointer"/>
+      <IconSvg name="certified" color="green.500" boxSize={ 6 } cursor="pointer" flexShrink={ 0 }/>
       <EntityTags
-        data={{
-          private_tags: [ privateTag ],
-          public_tags: [ publicTag ],
-          watchlist_names: [ watchlistName ],
-        }}
-        tagsBefore={ [
-          { label: 'example', display_name: 'Example with long name' },
+        tags={ [
+          { slug: 'example', name: 'Example with long name', tagType: 'custom' },
+          ...formatUserTags({
+            private_tags: [ privateTag ],
+            public_tags: [ publicTag ],
+            watchlist_names: [ watchlistName ],
+          }),
+          { slug: 'after_1', name: 'Another tag', tagType: 'custom' },
+          { slug: 'after_2', name: 'And yet more', tagType: 'custom' },
         ] }
-        tagsAfter={ [
-          { label: 'after_1', display_name: 'Another tag' },
-          { label: 'after_2', display_name: 'And yet more' },
-        ] }
-        contentAfter={ <NetworkExplorers type="token" pathParam="token-hash" ml="auto"/> }
         flexGrow={ 1 }
       />
+      <NetworkExplorers type="token" pathParam="token-hash" ml="auto"/>
     </>
   );
 

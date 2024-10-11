@@ -1,27 +1,28 @@
 import {
-  Box, Flex, Heading, Icon, IconButton, Image, Link, List, Modal, ModalBody,
-  ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Tag, Text, useColorModeValue,
+  Box, Flex, Heading, IconButton, Image, Link, List, Modal, ModalBody,
+  ModalCloseButton, ModalContent, ModalFooter, ModalOverlay, Tag, Text, useColorModeValue,
 } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
 
-import type { MarketplaceAppOverview } from 'types/client/marketplace';
+import type { MarketplaceAppWithSecurityReport } from 'types/client/marketplace';
+import { ContractListTypes } from 'types/client/marketplace';
 
-import linkIcon from 'icons/link.svg';
-import ghIcon from 'icons/social/git.svg';
-import tgIcon from 'icons/social/telega.svg';
-import twIcon from 'icons/social/tweet.svg';
-import starFilledIcon from 'icons/star_filled.svg';
-import starOutlineIcon from 'icons/star_outline.svg';
 import useIsMobile from 'lib/hooks/useIsMobile';
 import { nbsp } from 'lib/html-entities';
+import * as mixpanel from 'lib/mixpanel/index';
+import type { IconName } from 'ui/shared/IconSvg';
+import IconSvg from 'ui/shared/IconSvg';
 
+import AppSecurityReport from './AppSecurityReport';
+import ContractListButton, { ContractListButtonVariants } from './ContractListButton';
 import MarketplaceAppModalLink from './MarketplaceAppModalLink';
 
 type Props = {
   onClose: () => void;
   isFavorite: boolean;
-  onFavoriteClick: (id: string, isFavorite: boolean) => void;
-  data: MarketplaceAppOverview;
+  onFavoriteClick: (id: string, isFavorite: boolean, source: 'App modal') => void;
+  data: MarketplaceAppWithSecurityReport;
+  showContractList: (id: string, type: ContractListTypes, hasPreviousStep: boolean) => void;
 }
 
 const MarketplaceAppModal = ({
@@ -29,8 +30,12 @@ const MarketplaceAppModal = ({
   isFavorite,
   onFavoriteClick,
   data,
+  showContractList: showContractListProp,
 }: Props) => {
+  const starOutlineIconColor = useColorModeValue('gray.600', 'gray.300');
+
   const {
+    id,
     title,
     url,
     external,
@@ -40,32 +45,67 @@ const MarketplaceAppModal = ({
     github,
     telegram,
     twitter,
+    discord,
     logo,
     logoDarkMode,
     categories,
+    securityReport,
   } = data;
 
   const socialLinks = [
     telegram ? {
-      icon: tgIcon,
+      icon: 'social/telegram_filled' as IconName,
       url: telegram,
     } : null,
     twitter ? {
-      icon: twIcon,
+      icon: 'social/twitter_filled' as IconName,
       url: twitter,
     } : null,
-    github ? {
-      icon: ghIcon,
-      url: github,
+    discord ? {
+      icon: 'social/discord_filled' as IconName,
+      url: discord,
     } : null,
   ].filter(Boolean);
 
+  if (github) {
+    if (Array.isArray(github)) {
+      github.forEach((url) => socialLinks.push({ icon: 'social/github_filled', url }));
+    } else {
+      socialLinks.push({ icon: 'social/github_filled', url: github });
+    }
+  }
+
   const handleFavoriteClick = useCallback(() => {
-    onFavoriteClick(data.id, isFavorite);
-  }, [ onFavoriteClick, data.id, isFavorite ]);
+    onFavoriteClick(id, isFavorite, 'App modal');
+  }, [ onFavoriteClick, id, isFavorite ]);
+
+  const showContractList = useCallback((type: ContractListTypes) => {
+    onClose();
+    showContractListProp(id, type, true);
+  }, [ onClose, showContractListProp, id ]);
+
+  const showAllContracts = React.useCallback(() => {
+    mixpanel.logEvent(mixpanel.EventTypes.PAGE_WIDGET, { Type: 'Total contracts', Info: id, Source: 'App modal' });
+    showContractList(ContractListTypes.ALL);
+  }, [ showContractList, id ]);
+
+  const showVerifiedContracts = React.useCallback(() => {
+    mixpanel.logEvent(mixpanel.EventTypes.PAGE_WIDGET, { Type: 'Verified contracts', Info: id, Source: 'App modal' });
+    showContractList(ContractListTypes.VERIFIED);
+  }, [ showContractList, id ]);
+
+  const showAnalyzedContracts = React.useCallback(() => {
+    showContractList(ContractListTypes.ANALYZED);
+  }, [ showContractList ]);
 
   const isMobile = useIsMobile();
   const logoUrl = useColorModeValue(logo, logoDarkMode || logo);
+
+  function getHostname(url: string | undefined) {
+    try {
+      return new URL(url || '').hostname;
+    } catch (err) {}
+  }
 
   return (
     <Modal
@@ -77,10 +117,11 @@ const MarketplaceAppModal = ({
       <ModalOverlay/>
 
       <ModalContent>
-        <ModalHeader
+        <Box
           display="grid"
           gridTemplateColumns={{ base: 'auto 1fr' }}
           paddingRight={{ sm: 12 }}
+          marginBottom={{ base: 6, sm: 8 }}
         >
           <Flex
             alignItems="center"
@@ -93,6 +134,7 @@ const MarketplaceAppModal = ({
             <Image
               src={ logoUrl }
               alt={ `${ title } app icon` }
+              borderRadius="md"
             />
           </Flex>
 
@@ -121,29 +163,54 @@ const MarketplaceAppModal = ({
             gridColumn={{ base: '1 / 3', sm: 2 }}
             marginTop={{ base: 6, sm: 0 }}
           >
-            <Box display="flex">
-              <MarketplaceAppModalLink
-                id={ data.id }
-                url={ url }
-                external={ external }
-                title={ title }
-              />
+            <Flex flexWrap="wrap" gap={ 6 }>
+              <Flex width={{ base: '100%', sm: 'auto' }}>
+                <MarketplaceAppModalLink
+                  id={ data.id }
+                  url={ url }
+                  external={ external }
+                  title={ title }
+                />
 
-              <IconButton
-                aria-label="Mark as favorite"
-                title="Mark as favorite"
-                variant="outline"
-                colorScheme="gray"
-                w={ 9 }
-                h={ 8 }
-                onClick={ handleFavoriteClick }
-                icon={ isFavorite ?
-                  <Icon as={ starFilledIcon } w={ 4 } h={ 4 } color="yellow.400"/> :
-                  <Icon as={ starOutlineIcon } w={ 4 } h={ 4 } color="gray.300"/> }
-              />
-            </Box>
+                <IconButton
+                  aria-label="Mark as favorite"
+                  title="Mark as favorite"
+                  variant="outline"
+                  colorScheme="gray"
+                  w={ 9 }
+                  h={ 8 }
+                  onClick={ handleFavoriteClick }
+                  icon={ isFavorite ?
+                    <IconSvg name="star_filled" w={ 5 } h={ 5 } color="yellow.400"/> :
+                    <IconSvg name="star_outline" w={ 5 } h={ 5 } color={ starOutlineIconColor }/> }
+                />
+              </Flex>
+
+              { securityReport && (
+                <Flex alignItems="center" gap={ 3 }>
+                  <AppSecurityReport
+                    id={ id }
+                    securityReport={ securityReport }
+                    showContractList={ showAnalyzedContracts }
+                    source="App modal"
+                  />
+                  <ContractListButton
+                    onClick={ showAllContracts }
+                    variant={ ContractListButtonVariants.ALL_CONTRACTS }
+                  >
+                    { securityReport.overallInfo.totalContractsNumber }
+                  </ContractListButton>
+                  <ContractListButton
+                    onClick={ showVerifiedContracts }
+                    variant={ ContractListButtonVariants.VERIFIED_CONTRACTS }
+                  >
+                    { securityReport.overallInfo.verifiedNumber }
+                  </ContractListButton>
+                </Flex>
+              ) }
+            </Flex>
           </Box>
-        </ModalHeader>
+        </Box>
 
         <ModalCloseButton/>
 
@@ -188,8 +255,8 @@ const MarketplaceAppModal = ({
               maxW="100%"
               overflow="hidden"
             >
-              <Icon
-                as={ linkIcon }
+              <IconSvg
+                name="link"
                 display="inline"
                 verticalAlign="baseline"
                 boxSize="18px"
@@ -202,7 +269,7 @@ const MarketplaceAppModal = ({
                 overflow="hidden"
                 textOverflow="ellipsis"
               >
-                { site }
+                { getHostname(site) }
               </Text>
             </Link>
           ) }
@@ -227,11 +294,12 @@ const MarketplaceAppModal = ({
                   w={ 10 }
                   h={ 10 }
                 >
-                  <Icon
-                    as={ icon }
+                  <IconSvg
+                    name={ icon }
                     w="20px"
                     h="20px"
                     display="block"
+                    color="text_secondary"
                   />
                 </Link>
               )) }

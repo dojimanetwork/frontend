@@ -1,4 +1,4 @@
-import type { As, ChakraProps } from '@chakra-ui/react';
+import type { ChakraProps } from '@chakra-ui/react';
 import { Image, Skeleton, chakra } from '@chakra-ui/react';
 import _omit from 'lodash/omit';
 import React from 'react';
@@ -29,7 +29,6 @@ const Link = chakra((props: LinkProps) => {
 });
 
 type IconProps = Pick<EntityProps, 'token' | 'isLoading' | 'iconSize' | 'noIcon' | 'className'> & {
-  asProp?: As;
   marginRight?: ChakraProps['marginRight'];
   boxSize?: ChakraProps['boxSize'];
 };
@@ -43,10 +42,11 @@ const Icon = (props: IconProps) => {
     marginRight: props.marginRight ?? 2,
     boxSize: props.boxSize ?? getIconProps(props.iconSize).boxSize,
     borderRadius: 'base',
+    flexShrink: 0,
   };
 
   if (props.isLoading) {
-    return <Skeleton { ...styles } className={ props.className } flexShrink={ 0 }/>;
+    return <Skeleton { ...styles } className={ props.className }/>;
   }
 
   return (
@@ -57,6 +57,7 @@ const Icon = (props: IconProps) => {
       src={ props.token.icon_url ?? undefined }
       alt={ `${ props.token.name || 'token' } logo` }
       fallback={ <TokenLogoPlaceholder { ...styles }/> }
+      fallbackStrategy={ props.token.icon_url ? 'onError' : 'beforeLoadOrError' }
     />
   );
 };
@@ -66,7 +67,7 @@ type ContentProps = Omit<EntityBase.ContentBaseProps, 'text'> & Pick<EntityProps
 const Content = chakra((props: ContentProps) => {
   const nameString = [
     !props.onlySymbol && (props.token.name ?? 'Unnamed token'),
-    props.onlySymbol && (props.token.symbol ?? ''),
+    props.onlySymbol && (props.token.symbol ?? props.token.name ?? 'Unnamed token'),
     props.token.symbol && props.jointSymbol && !props.onlySymbol && `(${ props.token.symbol })`,
   ].filter(Boolean).join(' ');
 

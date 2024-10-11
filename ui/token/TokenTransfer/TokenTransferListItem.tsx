@@ -1,14 +1,13 @@
-import { Flex, Skeleton } from '@chakra-ui/react';
+import { Grid, Flex, Skeleton } from '@chakra-ui/react';
 import React from 'react';
 
 import type { TokenTransfer } from 'types/api/tokenTransfer';
 
-import eastArrowIcon from 'icons/arrows/east.svg';
 import getCurrencyValue from 'lib/getCurrencyValue';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
-import Icon from 'ui/shared/chakra/Icon';
+import { NFT_TOKEN_TYPE_IDS } from 'lib/token/tokenTypes';
+import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import Tag from 'ui/shared/chakra/Tag';
-import AddressEntityWithTokenFilter from 'ui/shared/entities/address/AddressEntityWithTokenFilter';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
@@ -28,7 +27,7 @@ const TokenTransferListItem = ({
   isLoading,
 }: Props) => {
   const timeAgo = useTimeAgoIncrement(timestamp, true);
-  const { usd, valueStr } = 'value' in total ? getCurrencyValue({
+  const { usd, valueStr } = 'value' in total && total.value !== null ? getCurrencyValue({
     value: total.value,
     exchangeRate: token.exchange_rate,
     accuracy: 8,
@@ -42,7 +41,7 @@ const TokenTransferListItem = ({
         <TxEntity
           isLoading={ isLoading }
           hash={ txHash }
-          truncation="constant"
+          truncation="constant_long"
           fontWeight="700"
         />
         { timestamp && (
@@ -54,36 +53,42 @@ const TokenTransferListItem = ({
         ) }
       </Flex>
       { method && <Tag isLoading={ isLoading }>{ method }</Tag> }
-      <Flex w="100%" columnGap={ 3 }>
-        <AddressEntityWithTokenFilter
-          address={ from }
-          isLoading={ isLoading }
-          tokenHash={ token.address }
-          width="50%"
-          fontWeight="500"
-        />
-        <Icon as={ eastArrowIcon } boxSize={ 6 } color="gray.500" isLoading={ isLoading }/>
-        <AddressEntityWithTokenFilter
-          address={ to }
-          isLoading={ isLoading }
-          tokenHash={ token.address }
-          width="50%"
-          fontWeight="500"
-        />
-      </Flex>
+      <AddressFromTo
+        from={ from }
+        to={ to }
+        isLoading={ isLoading }
+        tokenHash={ token.address }
+        w="100%"
+        fontWeight="500"
+      />
       { valueStr && (token.type === 'ERC-20' || token.type === 'ERC-1155') && (
-        <Flex columnGap={ 2 } w="100%">
+        <Grid gap={ 2 } templateColumns={ `1fr auto auto${ usd ? ' auto' : '' }` }>
           <Skeleton isLoaded={ !isLoading } flexShrink={ 0 } fontWeight={ 500 }>
             Value
           </Skeleton>
-          <Skeleton isLoaded={ !isLoading } color="text_secondary">
+          <Skeleton
+            isLoaded={ !isLoading }
+            color="text_secondary"
+            wordBreak="break-all"
+            overflow="hidden"
+            flexGrow={ 1 }
+          >
             <span>{ valueStr }</span>
           </Skeleton>
           { token.symbol && <TruncatedValue isLoading={ isLoading } value={ token.symbol }/> }
-          { usd && <Skeleton isLoaded={ !isLoading } color="text_secondary"><span>(${ usd })</span></Skeleton> }
-        </Flex>
+          { usd && (
+            <Skeleton
+              isLoaded={ !isLoading }
+              color="text_secondary"
+              wordBreak="break-all"
+              overflow="hidden"
+            >
+              <span>(${ usd })</span>
+            </Skeleton>
+          ) }
+        </Grid>
       ) }
-      { 'token_id' in total && (token.type === 'ERC-721' || token.type === 'ERC-1155') && (
+      { 'token_id' in total && (NFT_TOKEN_TYPE_IDS.includes(token.type)) && total.token_id !== null && (
         <NftEntity
           hash={ token.address }
           id={ total.token_id }

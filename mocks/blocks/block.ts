@@ -15,13 +15,14 @@ export const base: Block = {
   height: 30146364,
   miner: {
     hash: '0xdAd49e6CbDE849353ab27DeC6319E687BFc91A41',
-    implementation_name: null,
+    implementations: null,
     is_contract: false,
     is_verified: null,
     name: 'Alex Emelyanov',
     private_tags: [],
     public_tags: [],
     watchlist_names: [],
+    ens_domain_name: null,
   },
   nonce: '0x0000000000000000',
   parent_hash: '0x44125f0eb36a9d942e0c23bb4e8117f7ba86a9537a69b59c0025986ed2b7500f',
@@ -64,13 +65,14 @@ export const genesis: Block = {
   height: 0,
   miner: {
     hash: '0x0000000000000000000000000000000000000000',
-    implementation_name: null,
+    implementations: null,
     is_contract: false,
     is_verified: null,
     name: null,
     private_tags: [],
     public_tags: [],
     watchlist_names: [],
+    ens_domain_name: 'kitty.kitty.cat.eth',
   },
   nonce: '0x0000000000000000',
   parent_hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -92,13 +94,14 @@ export const base2: Block = {
   size: 592,
   miner: {
     hash: '0xDfE10D55d9248B2ED66f1647df0b0A46dEb25165',
-    implementation_name: null,
+    implementations: null,
     is_contract: false,
     is_verified: null,
     name: 'Kiryl Ihnatsyeu',
     private_tags: [],
     public_tags: [],
     watchlist_names: [],
+    ens_domain_name: null,
   },
   timestamp: '2022-11-11T11:46:05Z',
   tx_count: 253,
@@ -130,6 +133,15 @@ export const rootstock: Block = {
   bitcoin_merged_mining_merkle_proof: '0x09f386e5e6feb20706a1b5d0817eae96f0ebb0d713eeefe6d5625afc6fd87fcdfe8cc9118bb49e32db87f8e928dcb13dd327b526ced76fb9de0115a5dca8d2a9657c929360ad07418fc7e1a3120da27e0002470d0c98c9b8b5b2835e64e379421d2469204533307bf0c5a087d93fd1dfb3aaea3ee83099928860f6cca891cf59d73c4e3c6053ea4b385dce39067e87c28805ddd89c4ff10500401bec7c248f749ad6f0933e6ad270e447d01711aca1cc26d7989ee59e1431fd2fd5d058edca6d',
   hash_for_merged_mining: '0x481d071e57c6c47cb8eb716295a7079b15859962abf35e32f107b21f003f0bb9',
   minimum_gas_price: '59240000',
+};
+
+export const withBlobTxs: Block = {
+  ...base,
+  blob_gas_price: '21518435987',
+  blob_gas_used: '393216',
+  burnt_blob_fees: '8461393325064192',
+  excess_blob_gas: '79429632',
+  blob_tx_count: 1,
 };
 
 export const baseListResponse: BlocksResponse = {

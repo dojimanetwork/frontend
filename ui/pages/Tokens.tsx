@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import type { TokenType } from 'types/api/token';
-import type { TokensSortingValue } from 'types/api/tokens';
+import type { TokensSortingValue, TokensSortingField, TokensSorting } from 'types/api/tokens';
 import type { RoutedTab } from 'ui/shared/Tabs/types';
 
 import config from 'configs/app';
@@ -16,18 +16,22 @@ import PopoverFilter from 'ui/shared/filters/PopoverFilter';
 import TokenTypeFilter from 'ui/shared/filters/TokenTypeFilter';
 import PageTitle from 'ui/shared/Page/PageTitle';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
+import getSortParamsFromValue from 'ui/shared/sort/getSortParamsFromValue';
+import getSortValueFromQuery from 'ui/shared/sort/getSortValueFromQuery';
 import RoutedTabs from 'ui/shared/Tabs/RoutedTabs';
 import TokensList from 'ui/tokens/Tokens';
 import TokensActionBar from 'ui/tokens/TokensActionBar';
 import TokensBridgedChainsFilter from 'ui/tokens/TokensBridgedChainsFilter';
-import { getSortParamsFromValue, getSortValueFromQuery, getTokenFilterValue, getBridgedChainsFilterValue } from 'ui/tokens/utils';
+import { SORT_OPTIONS, getTokenFilterValue, getBridgedChainsFilterValue } from 'ui/tokens/utils';
 
 const TAB_LIST_PROPS = {
   marginBottom: 0,
-  py: 5,
+  pt: 6,
+  pb: 6,
   marginTop: -5,
   alignItems: 'center',
 };
+const TABS_HEIGHT = 88;
 
 const TABS_RIGHT_SLOT_PROPS = {
   ml: 8,
@@ -44,7 +48,7 @@ const Tokens = () => {
   const q = getQueryParamString(router.query.q);
 
   const [ searchTerm, setSearchTerm ] = React.useState<string>(q ?? '');
-  const [ sort, setSort ] = React.useState<TokensSortingValue | undefined>(getSortValueFromQuery(router.query));
+  const [ sort, setSort ] = React.useState<TokensSortingValue | undefined>(getSortValueFromQuery<TokensSortingValue>(router.query, SORT_OPTIONS));
   const [ tokenTypes, setTokenTypes ] = React.useState<Array<TokenType> | undefined>(getTokenFilterValue(router.query.type));
   const [ bridgeChains, setBridgeChains ] = React.useState<Array<string> | undefined>(getBridgedChainsFilterValue(router.query.chain_ids));
 
@@ -53,7 +57,7 @@ const Tokens = () => {
   const tokensQuery = useQueryWithPages({
     resourceName: tab === 'bridged' ? 'tokens_bridged' : 'tokens',
     filters: tab === 'bridged' ? { q: debouncedSearchTerm, chain_ids: bridgeChains } : { q: debouncedSearchTerm, type: tokenTypes },
-    sorting: getSortParamsFromValue(sort),
+    sorting: getSortParamsFromValue<TokensSortingValue, TokensSortingField, TokensSorting['order']>(sort),
     options: {
       placeholderData: generateListStub<'tokens'>(
         TOKEN_INFO_ERC_20,
@@ -99,13 +103,15 @@ const Tokens = () => {
     setBridgeChains(undefined);
   }, []);
 
+  const hasMultipleTabs = bridgedTokensFeature.isEnabled;
+
   const filter = tab === 'bridged' ? (
-    <PopoverFilter isActive={ bridgeChains && bridgeChains.length > 0 } contentProps={{ maxW: '350px' }} appliedFiltersNum={ bridgeChains?.length }>
+    <PopoverFilter contentProps={{ maxW: '350px' }} appliedFiltersNum={ bridgeChains?.length }>
       <TokensBridgedChainsFilter onChange={ handleBridgeChainsChange } defaultValue={ bridgeChains }/>
     </PopoverFilter>
   ) : (
-    <PopoverFilter isActive={ tokenTypes && tokenTypes.length > 0 } contentProps={{ w: '200px' }} appliedFiltersNum={ tokenTypes?.length }>
-      <TokenTypeFilter onChange={ handleTokenTypesChange } defaultValue={ tokenTypes }/>
+    <PopoverFilter contentProps={{ w: '200px' }} appliedFiltersNum={ tokenTypes?.length }>
+      <TokenTypeFilter<TokenType> onChange={ handleTokenTypesChange } defaultValue={ tokenTypes } nftOnly={ false }/>
     </PopoverFilter>
   );
 
@@ -118,7 +124,7 @@ const Tokens = () => {
       onSearchChange={ handleSearchTermChange }
       sort={ sort }
       onSortChange={ handleSortChange }
-      inTabsSlot={ !isMobile && bridgedTokensFeature.isEnabled }
+      inTabsSlot={ !isMobile && hasMultipleTabs }
     />
   );
 
@@ -149,6 +155,7 @@ const Tokens = () => {
           onSortChange={ handleSortChange }
           actionBar={ isMobile ? actionBar : null }
           hasActiveFilters={ Boolean(searchTerm || tokenTypes) }
+          tableTop={ hasMultipleTabs ? TABS_HEIGHT : undefined }
         />
       ),
     },
@@ -163,6 +170,7 @@ const Tokens = () => {
           actionBar={ isMobile ? actionBar : null }
           hasActiveFilters={ Boolean(searchTerm || bridgeChains) }
           description={ description }
+          tableTop={ hasMultipleTabs ? TABS_HEIGHT : undefined }
         />
       ),
     } : undefined,
@@ -170,12 +178,15 @@ const Tokens = () => {
 
   return (
     <>
-      <PageTitle title="Tokens" withTextAd/>
-      { tabs.length === 1 && !isMobile && actionBar }
+      <PageTitle
+        title={ config.meta.seo.enhancedDataEnabled ? `Tokens on ${ config.chain.name }` : 'Tokens' }
+        withTextAd
+      />
+      { !hasMultipleTabs && !isMobile && actionBar }
       <RoutedTabs
         tabs={ tabs }
         tabListProps={ isMobile ? undefined : TAB_LIST_PROPS }
-        rightSlot={ !isMobile ? actionBar : null }
+        rightSlot={ hasMultipleTabs && !isMobile ? actionBar : null }
         rightSlotProps={ !isMobile ? TABS_RIGHT_SLOT_PROPS : undefined }
         stickyEnabled={ !isMobile }
         onTabChange={ handleTabChange }

@@ -1,5 +1,5 @@
-import type { ButtonProps } from '@chakra-ui/react';
-import { Popover, PopoverContent, PopoverBody, PopoverTrigger, Button } from '@chakra-ui/react';
+import type { IconButtonProps } from '@chakra-ui/react';
+import { Popover, PopoverContent, PopoverBody, PopoverTrigger, IconButton, Tooltip, Box, chakra } from '@chakra-ui/react';
 import React from 'react';
 
 import useFetchProfileInfo from 'lib/hooks/useFetchProfileInfo';
@@ -8,9 +8,19 @@ import * as mixpanel from 'lib/mixpanel/index';
 import UserAvatar from 'ui/shared/UserAvatar';
 import ProfileMenuContent from 'ui/snippets/profileMenu/ProfileMenuContent';
 
-const ProfileMenuDesktop = () => {
+import useMenuButtonColors from '../useMenuButtonColors';
+
+type Props = {
+  isHomePage?: boolean;
+  className?: string;
+  fallbackIconSize?: number;
+  buttonBoxSize?: string;
+};
+
+const ProfileMenuDesktop = ({ isHomePage, className, fallbackIconSize, buttonBoxSize }: Props) => {
   const { data, error, isPending } = useFetchProfileInfo();
   const loginUrl = useLoginUrl();
+  const { themedBackground, themedBorderColor, themedColor } = useMenuButtonColors();
   const [ hasMenu, setHasMenu ] = React.useState(false);
 
   React.useEffect(() => {
@@ -27,7 +37,7 @@ const ProfileMenuDesktop = () => {
     );
   }, []);
 
-  const buttonProps: Partial<ButtonProps> = (() => {
+  const iconButtonProps: Partial<IconButtonProps> = (() => {
     if (hasMenu || !loginUrl) {
       return {};
     }
@@ -39,21 +49,56 @@ const ProfileMenuDesktop = () => {
     };
   })();
 
+  const variant = React.useMemo(() => {
+    if (hasMenu) {
+      return 'subtle';
+    }
+    return isHomePage ? 'solid' : 'outline';
+  }, [ hasMenu, isHomePage ]);
+
+  let iconButtonStyles: Partial<IconButtonProps> = {};
+  if (hasMenu) {
+    iconButtonStyles = {
+      bg: isHomePage ? 'blue.50' : themedBackground,
+    };
+  } else if (isHomePage) {
+    iconButtonStyles = {
+      color: 'white',
+    };
+  } else {
+    iconButtonStyles = {
+      borderColor: themedBorderColor,
+      color: themedColor,
+    };
+  }
+
   return (
     <Popover openDelay={ 300 } placement="bottom-end" gutter={ 10 } isLazy>
-      <PopoverTrigger>
-        <Button
-          variant="unstyled"
-          display="block"
-          boxSize="50px"
-          flexShrink={ 0 }
-          { ...buttonProps }
-        >
-          <UserAvatar size={ 50 }/>
-        </Button>
-      </PopoverTrigger>
+      <Tooltip
+        label={ <span>Sign in to My Account to add tags,<br/>create watchlists, access API keys and more</span> }
+        textAlign="center"
+        padding={ 2 }
+        isDisabled={ hasMenu }
+        openDelay={ 500 }
+      >
+        <Box>
+          <PopoverTrigger>
+            <IconButton
+              className={ className }
+              aria-label="profile menu"
+              icon={ <UserAvatar size={ 20 } fallbackIconSize={ fallbackIconSize }/> }
+              variant={ variant }
+              colorScheme="blue"
+              boxSize={ buttonBoxSize ?? '40px' }
+              flexShrink={ 0 }
+              { ...iconButtonProps }
+              { ...iconButtonStyles }
+            />
+          </PopoverTrigger>
+        </Box>
+      </Tooltip>
       { hasMenu && (
-        <PopoverContent w="212px">
+        <PopoverContent maxW="400px" minW="220px" w="min-content">
           <PopoverBody padding="24px 16px 16px 16px">
             <ProfileMenuContent data={ data }/>
           </PopoverBody>
@@ -63,4 +108,4 @@ const ProfileMenuDesktop = () => {
   );
 };
 
-export default ProfileMenuDesktop;
+export default chakra(ProfileMenuDesktop);

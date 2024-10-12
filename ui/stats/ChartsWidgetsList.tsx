@@ -25,6 +25,7 @@ const ChartsWidgetsList = ({
   isPlaceholderData,
   charts,
   interval,
+  initialFilterQuery,
 }: Props) => {
   const [ isSomeChartLoadingError, setIsSomeChartLoadingError ] = useState(false);
   const isAnyChartDisplayed = charts?.some(

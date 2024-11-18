@@ -9,9 +9,9 @@ import blockIcon from 'icons/block.svg';
 import clockIcon from 'icons/clock-light.svg';
 import bitcoinIcon from 'icons/coins/bitcoin.svg';
 import gasIcon from 'icons/gas.svg';
-import txIcon from 'icons/transactions.svg';
+// import txIcon from 'icons/transactions.svg';
 import batchesIcon from 'icons/txn_batches.svg';
-import walletIcon from 'icons/wallet.svg';
+// import walletIcon from 'icons/wallet.svg';
 import useApiQuery from 'lib/api/useApiQuery';
 import { WEI } from 'lib/consts';
 import { HOMEPAGE_STATS } from 'stubs/stats';
@@ -81,20 +81,20 @@ const Stats = () => {
             isLoading={ isPlaceholderData }
           />
         ) }
-        <StatsItem
+        { /* <StatsItem
           icon={ txIcon }
           title="Total transactions"
           value={ Number(data.total_transactions).toLocaleString() }
           url={ route({ pathname: '/txs' }) }
           isLoading={ isPlaceholderData }
-        />
-        <StatsItem
+        /> */ }
+        { /* <StatsItem
           icon={ walletIcon }
           title="Wallet addresses"
           value={ Number(data.total_addresses).toLocaleString() }
           _last={ isOdd ? lastItemTouchStyle : undefined }
           isLoading={ isPlaceholderData }
-        />
+        /> */ }
         { hasGasTracker && data.gas_prices && (
           <StatsItem
             icon={ gasIcon }

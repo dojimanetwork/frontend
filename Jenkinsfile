@@ -1,15 +1,15 @@
 pipeline {
     agent any
     tools {
-        dockerTool 'Docker'
+        dockerTool 'docker'
     }
     environment {
         IMAGENAME = 'blockscout-v2' // Set the credentials ID as an environment variable
     }
     parameters {
         choice(name: 'BUILD_TYPE', choices: ['patch', 'minor', 'major' ], description: 'select version to build in develop')
-        choice(name: 'NET', choices: ['testnet', 'stagenet', 'mainnet'], description: 'select net type to build')
-        choice(name: 'CLOUD', choices: ['GCP', 'AZURE', 'AWS'], description: 'select cloud operator to push docker image')
+        choice(name: 'NET', choices: ['stagenet', 'testnet','mainnet'], description: 'select net type to build')
+        choice(name: 'CLOUD', choices: ['AZURE', 'GCP', 'AWS'], description: 'select cloud operator to push docker image')
     }
     stages {
         stage('GCP Release') {

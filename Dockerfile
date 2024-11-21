@@ -60,7 +60,6 @@ RUN ./collect_envs.sh ./docs/ENVS.md
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 # Build app for production
-RUN yarn svg:build-sprite
 RUN yarn build
 
 

@@ -107,8 +107,9 @@ pipeline {
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b ci-pipeline-changes
                                         cd helm_charts
-                                        sed -i '/^  frontend:/,/^  postgres:/s|tag: .*|tag: ${GITREF}_${VERSION}|' dependency_charts/blockscout-v2-frontend/values.yaml
-                                        sed -i '/^  frontend:/,/^  postgres:/s|hash: .*|hash: \"${imageDigest}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i '/^  image:/,/^  frontend:/s|tag: .*|tag: ${GITREF}_${VERSION}|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i '/^  image:/,/^  frontend:/s|hash: .*|hash: \"${imageDigest}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+
                                         git add .
                                         git commit -m "Update mainnet_hash with image digest ${imageDigest}"
                                         git push origin ci-pipeline-changes

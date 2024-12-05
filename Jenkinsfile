@@ -104,7 +104,7 @@ pipeline {
                             if (params.NET == 'mainnet') {
                                 withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
-                                        cd ${WORKSPACE}
+                                        cd ${WORKSPACE} && rm -r helm_charts
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b ci-pipeline-changes
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml

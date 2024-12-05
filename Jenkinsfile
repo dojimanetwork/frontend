@@ -97,7 +97,7 @@ pipeline {
                             def imageDigest = sh(
                                 script: "docker inspect --format='{{index .RepoDigests 0}}' ${env.AZURE}/${IMAGENAME}:${GITREF}_${VERSION} | awk -F'@' '{print \$2}'",
                                 returnStdout: true
-                            ).trim().replaceAll(/^sha256:/, '')
+                            ).trim()
 
                             echo "Image Digest: ${imageDigest}"
 
@@ -105,13 +105,13 @@ pipeline {
                                 withCredentials([string(credentialsId: 'Manju-test-pat', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
-                                        git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_master
+                                        git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b ci-pipeline-changes
                                         cd helm_charts
-                                        sed -i 's/mainnet_hash: .*/mainnet_hash: \"${imageDigest}\"/' dependency_charts/blockscout-v2-frontend/values.yaml
-                                        sed -i '/^image:/,/^  mainnet:/s|mainnet: .*|mainnet: \"${GITREF}_${VERSION}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i '/^  frontend:/,/^  postgres:/s|tag: .*|tag: ${GITREF}_${VERSION}|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i '/^  frontend:/,/^  postgres:/s|hash: .*|hash: \"${imageDigest}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
                                         git add .
                                         git commit -m "Update mainnet_hash with image digest ${imageDigest}"
-                                        git push origin azure_master
+                                        git push origin ci-pipeline-changes
                                         cd ${WORKSPACE} && rm -r helm_charts
                                     """
                                 }
@@ -151,4 +151,3 @@ pipeline {
         }
     }
 }
-

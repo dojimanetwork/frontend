@@ -109,6 +109,7 @@ pipeline {
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\(\\s*hash:\\).*|\\1 \"${imageDigest}\"|" dependency_charts/blockscout-v2-frontend/values.yaml
+
                                         git add .
                                         git commit -m "Update mainnet_hash with image digest ${imageDigest}"
                                         git push origin ci-pipeline-changes

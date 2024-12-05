@@ -104,14 +104,14 @@ pipeline {
                             if (params.NET == 'mainnet') {
                                 withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
-                                        cd ${WORKSPACE} && rm -r helm_charts
-                                        git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b ci-pipeline-changes
+                                        cd ${WORKSPACE}
+                                        git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_master
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*hash:\\).*|\\1 \"${imageDigest}\"|" dependency_charts/blockscout-v2-frontend/values.yaml
                                         git add .
                                         git commit -m "Update mainnet_hash with image digest ${imageDigest}"
-                                        git push origin ci-pipeline-changes
+                                        git push origin azure_master
                                         cd ${WORKSPACE} && rm -r helm_charts
                                     """
                                 }
@@ -121,10 +121,10 @@ pipeline {
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_develop
                                         cd helm_charts
-                                        sed -i 's/testnet_hash: .*/testnet_hash: \"${imageDigest}\"/' dependency_charts/blockscout-v2-frontend/values.yaml
-                                        sed -i '/^image:/,/^  testnet:/s|testnet: .*|testnet: \"${GITREF}_${VERSION}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*hash:\\).*|\\1 \"${imageDigest}\"|" dependency_charts/blockscout-v2-frontend/values.yaml
                                         git add .
-                                        git commit -m "Update mainnet_hash with image digest ${imageDigest}"
+                                        git commit -m "Update testnet_hash with image digest ${imageDigest}"
                                         git push origin azure_develop
                                         cd ${WORKSPACE} && rm -r helm_charts
                                     """
@@ -135,8 +135,8 @@ pipeline {
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_stagenet
                                         cd helm_charts
-                                        sed -i 's/stagenet_hash: .*/stagenet_hash: \"${imageDigest}\"/' dependency_charts/blockscout-v2-frontend/values.yaml
-                                        sed -i '/^image:/,/^  stagenet:/s|stagenet: .*|stagenet: \"${GITREF}_${VERSION}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*hash:\\).*|\\1 \"${imageDigest}\"|" dependency_charts/blockscout-v2-frontend/values.yaml
                                         git add .
                                         git commit -m "Update stagenet_hash with image digest ${imageDigest}"
                                         git push origin azure_stagenet

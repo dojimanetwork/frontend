@@ -102,13 +102,13 @@ pipeline {
                             echo "Image Digest: ${imageDigest}"
 
                             if (params.NET == 'mainnet') {
-                                withCredentials([string(credentialsId: 'Manju-test-pat', variable: 'GIT_TOKEN')]) {
+                                withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b ci-pipeline-changes
                                         cd helm_charts
-                                        sed -i '/^  image:/,/^  frontend:/s|tag: .*|tag: ${GITREF}_${VERSION}|' dependency_charts/blockscout-v2-frontend/values.yaml
-                                        sed -i '/^  image:/,/^  frontend:/s|hash: .*|hash: \"${imageDigest}\"|' dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\(\s*tag:\).*|\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
+                                        sed -i "/^  frontend:/,/^  frontend:/s|^\(\s*hash:\).*|\1 \"${imageDigest}\"|" dependency_charts/blockscout-v2-frontend/values.yaml
 
                                         git add .
                                         git commit -m "Update mainnet_hash with image digest ${imageDigest}"
@@ -117,7 +117,7 @@ pipeline {
                                     """
                                 }
                             } else if (params.NET == "testnet") {
-                                withCredentials([string(credentialsId: 'Manju-test-pat', variable: 'GIT_TOKEN')]) {
+                                withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_develop
@@ -131,7 +131,7 @@ pipeline {
                                     """
                                 }
                             } else if (params.NET == "stagenet") {
-                                withCredentials([string(credentialsId: 'Manju-test-pat', variable: 'GIT_TOKEN')]) {
+                                withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_stagenet

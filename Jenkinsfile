@@ -105,6 +105,9 @@ pipeline {
                                 withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
+                                        if [ -d "helm_charts" ]; then
+                                            rm -rf helm_charts
+                                        fi
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_master
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
@@ -119,6 +122,9 @@ pipeline {
                                 withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
+                                        if [ -d "helm_charts" ]; then
+                                            rm -rf helm_charts
+                                        fi
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_develop
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml
@@ -133,6 +139,9 @@ pipeline {
                                 withCredentials([string(credentialsId: 'Gitops_PAT', variable: 'GIT_TOKEN')]) {
                                     sh """
                                         cd ${WORKSPACE}
+                                        if [ -d "helm_charts" ]; then
+                                            rm -rf helm_charts
+                                        fi
                                         git clone https://${GIT_TOKEN}@github.com/dojimanetwork/helm_charts.git -b azure_stagenet
                                         cd helm_charts
                                         sed -i "/^  frontend:/,/^  frontend:/s|^\\(\\s*tag:\\).*|\\1 ${GITREF}_${VERSION}|" dependency_charts/blockscout-v2-frontend/values.yaml

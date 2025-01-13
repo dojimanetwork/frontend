@@ -9,7 +9,7 @@ import blockIcon from 'icons/block.svg';
 import clockIcon from 'icons/clock-light.svg';
 import bitcoinIcon from 'icons/coins/bitcoin.svg';
 import gasIcon from 'icons/gas.svg';
-// import txIcon from 'icons/transactions.svg';
+import txIcon from 'icons/transactions.svg';
 import batchesIcon from 'icons/txn_batches.svg';
 // import walletIcon from 'icons/wallet.svg';
 import useApiQuery from 'lib/api/useApiQuery';
@@ -81,13 +81,13 @@ const Stats = () => {
             isLoading={ isPlaceholderData }
           />
         ) }
-        { /* <StatsItem
+        <StatsItem
           icon={ txIcon }
           title="Total transactions"
           value={ Number(data.total_transactions).toLocaleString() }
           url={ route({ pathname: '/txs' }) }
           isLoading={ isPlaceholderData }
-        /> */ }
+        />
         { /* <StatsItem
           icon={ walletIcon }
           title="Wallet addresses"

@@ -122,13 +122,13 @@ const Stats = () => {
             isLoading={ isLoading }
           />
         ) }
-        { /* <StatsItem
+        <StatsItem
           icon="transactions"
           title="Total transactions"
           value={ Number(data.total_transactions).toLocaleString() }
           url={ route({ pathname: '/txs' }) }
           isLoading={ isLoading }
-        /> */ }
+        />
         { rollupFeature.isEnabled && data.last_output_root_size && (
           <StatsItem
             icon="txn_batches"

@@ -8,7 +8,7 @@ import config from 'configs/app';
 import blockIcon from 'icons/block.svg';
 import clockIcon from 'icons/clock-light.svg';
 import bitcoinIcon from 'icons/coins/bitcoin.svg';
-import gasIcon from 'icons/gas.svg';
+// import gasIcon from 'icons/gas.svg';
 import txIcon from 'icons/transactions.svg';
 import batchesIcon from 'icons/txn_batches.svg';
 // import walletIcon from 'icons/wallet.svg';
@@ -16,7 +16,7 @@ import useApiQuery from 'lib/api/useApiQuery';
 import { WEI } from 'lib/consts';
 import { HOMEPAGE_STATS } from 'stubs/stats';
 
-import StatsGasPrices from './StatsGasPrices';
+// import StatsGasPrices from './StatsGasPrices';
 import StatsItem from './StatsItem';
 
 const hasGasTracker = config.UI.homepage.showGasTracker;
@@ -52,7 +52,7 @@ const Stats = () => {
     !data.gas_prices && itemsCount--;
     data.rootstock_locked_btc && itemsCount++;
     const isOdd = Boolean(itemsCount % 2);
-    const gasLabel = hasGasTracker && data.gas_prices ? <StatsGasPrices gasPrices={ data.gas_prices }/> : null;
+    // const gasLabel = hasGasTracker && data.gas_prices ? <StatsGasPrices gasPrices={ data.gas_prices }/> : null;
 
     content = (
       <>
@@ -95,7 +95,7 @@ const Stats = () => {
           _last={ isOdd ? lastItemTouchStyle : undefined }
           isLoading={ isPlaceholderData }
         /> */ }
-        { hasGasTracker && data.gas_prices && (
+        { /* { hasGasTracker && data.gas_prices && (
           <StatsItem
             icon={ gasIcon }
             title="Gas tracker"
@@ -104,7 +104,7 @@ const Stats = () => {
             tooltipLabel={ gasLabel }
             isLoading={ isPlaceholderData }
           />
-        ) }
+        ) } */ }
         { data.rootstock_locked_btc && (
           <StatsItem
             icon={ bitcoinIcon }
